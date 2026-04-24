@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Environment files — NEVER push these, they contain secrets
+.env
+.env.local
+
+# Next.js build output
+.next/
+out/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
