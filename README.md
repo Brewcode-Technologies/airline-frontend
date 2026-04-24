@@ -43,18 +43,6 @@ Frontend runs on **http://localhost:3000**
 
 ---
 
-## Login
-
-Go to **http://localhost:3000/login** and use any of these credentials:
-
-| Role | Email | Password | Redirects To |
-|---|---|---|---|
-| Admin | admin@airline.com | password123 | `/admin/dashboard` |
-| Airline | manager@airline.com | password123 | `/airline/dashboard` |
-| Driver | ravi@driver.com | password123 | `/driver/orders` |
-
----
-
 ## Pages
 
 ### Admin
