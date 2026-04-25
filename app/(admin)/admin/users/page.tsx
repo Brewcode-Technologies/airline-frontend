@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { fetchVendors, createVendor, updateVendor, deleteVendor } from '@/store/slices/vendorsSlice';
+import { fetchUsers, createUser, updateUser, deleteUser } from '@/store/slices/usersSlice';
 import PageHeader from '@/components/ui/PageHeader';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
@@ -11,11 +11,12 @@ import Spinner from '@/components/ui/Spinner';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import Toast from '@/components/ui/Toast';
 
-const emptyForm = { name: '', contact: '', email: '', address: '' };
+const ROLES = ['admin', 'airline', 'driver'];
+const emptyForm = { name: '', email: '', password: '', role: 'driver' };
 
-export default function VendorsPage() {
+export default function UsersPage() {
   const dispatch = useAppDispatch();
-  const { list: vendors, loading } = useAppSelector((s) => s.vendors);
+  const { list: users, loading } = useAppSelector((s) => s.users);
 
   const [modal, setModal] = useState<'create' | 'edit' | 'delete' | 'bulkDelete' | null>(null);
   const [selected, setSelected] = useState<any>(null);
@@ -27,36 +28,38 @@ export default function VendorsPage() {
   const showToast = (message: string, type: 'success' | 'error' = 'success') => setToast({ message, type });
   const closeToast = useCallback(() => setToast(null), []);
 
-  useEffect(() => { dispatch(fetchVendors()); }, [dispatch]);
+  useEffect(() => { dispatch(fetchUsers()); }, [dispatch]);
 
-  const allChecked = vendors.length > 0 && checkedIds.size === vendors.length;
-  const toggleAll = () => setCheckedIds(allChecked ? new Set() : new Set(vendors.map((v) => v._id)));
+  const allChecked = users.length > 0 && checkedIds.size === users.length;
+  const toggleAll = () => setCheckedIds(allChecked ? new Set() : new Set(users.map((u) => u._id)));
   const toggleOne = (id: string) => setCheckedIds((prev) => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s; });
 
   const openCreate = () => { setForm(emptyForm); setModal('create'); };
-  const openEdit = (v: any) => {
-    setSelected(v);
-    setForm({ name: v.name, contact: v.contact || '', email: v.email || '', address: v.address || '' });
+  const openEdit = (u: any) => {
+    setSelected(u);
+    setForm({ name: u.name, email: u.email, password: '', role: u.role });
     setModal('edit');
   };
   const close = () => { setModal(null); setSelected(null); };
 
   const handleCreate = async () => {
-    const r = await dispatch(createVendor(form)); close();
-    createVendor.fulfilled.match(r) ? showToast('Vendor created successfully') : showToast('Failed to create vendor', 'error');
+    const r = await dispatch(createUser(form)); close();
+    createUser.fulfilled.match(r) ? showToast('User created successfully') : showToast('Failed to create user', 'error');
   };
   const handleEdit = async () => {
-    const r = await dispatch(updateVendor({ id: selected._id, payload: form })); close();
-    updateVendor.fulfilled.match(r) ? showToast('Vendor updated successfully') : showToast('Failed to update vendor', 'error');
+    const payload: any = { name: form.name, email: form.email, role: form.role };
+    if (form.password) payload.password = form.password;
+    const r = await dispatch(updateUser({ id: selected._id, payload })); close();
+    updateUser.fulfilled.match(r) ? showToast('User updated successfully') : showToast('Failed to update user', 'error');
   };
   const handleDelete = async () => {
     if (!deleteId) return;
-    const r = await dispatch(deleteVendor(deleteId)); setDeleteId(null); setModal(null);
-    deleteVendor.fulfilled.match(r) ? showToast('Vendor deleted') : showToast('Failed to delete vendor', 'error');
+    const r = await dispatch(deleteUser(deleteId)); setDeleteId(null); setModal(null);
+    deleteUser.fulfilled.match(r) ? showToast('User deleted') : showToast('Failed to delete user', 'error');
   };
   const handleBulkDelete = async () => {
-    await Promise.all([...checkedIds].map((id) => dispatch(deleteVendor(id))));
-    showToast(`${checkedIds.size} vendor(s) deleted`);
+    await Promise.all([...checkedIds].map((id) => dispatch(deleteUser(id))));
+    showToast(`${checkedIds.size} user(s) deleted`);
     setCheckedIds(new Set()); setModal(null);
   };
 
@@ -64,6 +67,7 @@ export default function VendorsPage() {
     <div className="mb-4">
       <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
       <input type={type} value={form[key]} onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+        placeholder={key === 'password' && modal === 'edit' ? 'Leave blank to keep current' : ''}
         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
     </div>
   );
@@ -74,8 +78,8 @@ export default function VendorsPage() {
 
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Vendors</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{vendors.length} total</p>
+          <h1 className="text-2xl font-bold text-gray-800">Users</h1>
+          <p className="text-sm text-gray-500 mt-0.5">{users.length} total</p>
         </div>
         <div className="flex gap-2 flex-wrap">
           {checkedIds.size > 0 && (
@@ -83,11 +87,11 @@ export default function VendorsPage() {
               Delete Selected ({checkedIds.size})
             </Button>
           )}
-          <Button onClick={openCreate}>+ New Vendor</Button>
+          <Button onClick={openCreate}>+ New User</Button>
         </div>
       </div>
 
-      {loading ? <Spinner label="Loading vendors…" /> : (
+      {loading ? <Spinner label="Loading users…" /> : (
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
@@ -95,51 +99,56 @@ export default function VendorsPage() {
                 <th className="px-4 py-3 w-10">
                   <input type="checkbox" checked={allChecked} onChange={toggleAll} className="w-4 h-4 cursor-pointer" />
                 </th>
-                {['Name', 'Contact', 'Email', 'Address', 'Status', 'Actions'].map((h) => (
+                {['Name', 'Email', 'Role', 'Created', 'Actions'].map((h) => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {vendors.map((v) => (
-                <tr key={v._id} className={`hover:bg-gray-50 ${checkedIds.has(v._id) ? 'bg-red-50' : ''}`}>
+              {users.map((u) => (
+                <tr key={u._id} className={`hover:bg-gray-50 ${checkedIds.has(u._id) ? 'bg-red-50' : ''}`}>
                   <td className="px-4 py-3">
-                    <input type="checkbox" checked={checkedIds.has(v._id)} onChange={() => toggleOne(v._id)} className="w-4 h-4 cursor-pointer" />
+                    <input type="checkbox" checked={checkedIds.has(u._id)} onChange={() => toggleOne(u._id)} className="w-4 h-4 cursor-pointer" />
                   </td>
-                  <td className="px-4 py-3 font-medium text-gray-800">{v.name}</td>
-                  <td className="px-4 py-3 text-gray-600">{v.contact || '—'}</td>
-                  <td className="px-4 py-3 text-gray-600">{v.email || '—'}</td>
-                  <td className="px-4 py-3 text-gray-600">{v.address || '—'}</td>
-                  <td className="px-4 py-3"><Badge label={v.isActive ? 'active' : 'inactive'} /></td>
+                  <td className="px-4 py-3 font-medium text-gray-800">{u.name}</td>
+                  <td className="px-4 py-3 text-gray-600">{u.email}</td>
+                  <td className="px-4 py-3"><Badge label={u.role} /></td>
+                  <td className="px-4 py-3 text-gray-500">{new Date(u.createdAt).toLocaleDateString()}</td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
-                      <Button size="sm" variant="secondary" onClick={() => openEdit(v)}>Edit</Button>
-                      <Button size="sm" variant="danger" onClick={() => { setDeleteId(v._id); setModal('delete'); }}>Delete</Button>
+                      <Button size="sm" variant="secondary" onClick={() => openEdit(u)}>Edit</Button>
+                      <Button size="sm" variant="danger" onClick={() => { setDeleteId(u._id); setModal('delete'); }}>Delete</Button>
                     </div>
                   </td>
                 </tr>
               ))}
-              {vendors.length === 0 && <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">No vendors found</td></tr>}
+              {users.length === 0 && <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">No users found</td></tr>}
             </tbody>
           </table>
         </div>
       )}
 
       {modal === 'delete' && (
-        <ConfirmModal title="Delete Vendor" message="Are you sure you want to delete this vendor? This action cannot be undone."
+        <ConfirmModal title="Delete User" message="Are you sure you want to delete this user? This action cannot be undone."
           confirmLabel="Delete" variant="danger" onConfirm={handleDelete} onCancel={() => { setModal(null); setDeleteId(null); }} />
       )}
       {modal === 'bulkDelete' && (
-        <ConfirmModal title={`Delete ${checkedIds.size} Vendor(s)`} message={`Are you sure you want to delete ${checkedIds.size} selected vendor(s)? This action cannot be undone.`}
+        <ConfirmModal title={`Delete ${checkedIds.size} User(s)`} message={`Are you sure you want to delete ${checkedIds.size} selected user(s)? This action cannot be undone.`}
           confirmLabel={`Delete ${checkedIds.size}`} variant="danger" onConfirm={handleBulkDelete} onCancel={() => setModal(null)} />
       )}
 
       {modal && !['delete', 'bulkDelete'].includes(modal) && (
-        <Modal title={modal === 'create' ? 'New Vendor' : 'Edit Vendor'} onClose={close}>
+        <Modal title={modal === 'create' ? 'New User' : 'Edit User'} onClose={close}>
           {tf('Name', 'name')}
-          {tf('Contact', 'contact')}
           {tf('Email', 'email', 'email')}
-          {tf('Address', 'address')}
+          {tf('Password', 'password', 'password')}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+            <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
+            </select>
+          </div>
           <div className="flex justify-end gap-3 mt-2">
             <Button variant="secondary" onClick={close}>Cancel</Button>
             <Button onClick={modal === 'create' ? handleCreate : handleEdit}>{modal === 'create' ? 'Create' : 'Save'}</Button>
