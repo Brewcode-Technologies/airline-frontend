@@ -3,10 +3,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { MdEmail, MdLock, MdPerson, MdAdminPanelSettings } from 'react-icons/md';
+import { MdEmail, MdLock, MdPerson, MdLocalShipping } from 'react-icons/md';
 import api from '@/services/api';
 
-export default function AdminRegisterPage() {
+export default function DriverRegisterPage() {
   const router = useRouter();
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);
@@ -15,29 +15,18 @@ export default function AdminRegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (form.password.length < 6) {
-      setError('Password must be at least 6 characters.');
-      return;
-    }
-
+    if (form.password.length < 6) { setError('Password must be at least 6 characters.'); return; }
     setLoading(true);
     try {
-      const { data } = await api.post('/auth/register', {
-        name:     form.name,
-        email:    form.email,
-        password: form.password,
-        role:     'admin',
-      });
+      const { data } = await api.post('/auth/register', { name: form.name, email: form.email, password: form.password, role: 'driver' });
       localStorage.setItem('token',  data.data.token);
       localStorage.setItem('role',   data.data.user.role);
       localStorage.setItem('name',   data.data.user.name);
       localStorage.setItem('userId', data.data.user.id);
-      router.push('/admin/dashboard');
+      router.push('/driver/orders');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Registration failed.');
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
   const tf = (label: string, key: keyof typeof form, type = 'text', icon: React.ReactNode, placeholder: string) => (
@@ -45,14 +34,9 @@ export default function AdminRegisterPage() {
       <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
       <div className="relative">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">{icon}</span>
-        <input
-          type={type}
-          required
-          value={form[key]}
-          onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+        <input type={type} required value={form[key]} onChange={(e) => setForm({ ...form, [key]: e.target.value })}
           placeholder={placeholder}
-          className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
-        />
+          className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500" />
       </div>
     </div>
   );
@@ -65,40 +49,35 @@ export default function AdminRegisterPage() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="bg-purple-600 px-6 py-6 flex items-center gap-4">
+          <div className="bg-orange-500 px-6 py-6 flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
-              <MdAdminPanelSettings size={28} className="text-white" />
+              <MdLocalShipping size={28} className="text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">Create Admin Account</h2>
-              <p className="text-purple-200 text-sm">Register a new admin</p>
+              <h2 className="text-xl font-bold text-white">Create Driver Account</h2>
+              <p className="text-orange-100 text-sm">Register a new driver account</p>
             </div>
           </div>
 
           <div className="p-6">
             <form onSubmit={handleSubmit} className="space-y-4">
-              {tf('Full Name',        'name',            'text',     <MdPerson size={18} />,  'Super Admin')}
-              {tf('Email',            'email',           'email',    <MdEmail size={18} />,   'admin@airline.com')}
+              {tf('Full Name',        'name',            'text',     <MdPerson size={18} />, 'e.g. Ravi Kumar')}
+              {tf('Email',            'email',           'email',    <MdEmail size={18} />,  'ravi@driver.com')}
               {tf('Password', 'password', 'password', <MdLock size={18} />, 'Min. 6 characters')}
 
               {error && (
                 <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>
               )}
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 rounded-lg text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-              >
+              <button type="submit" disabled={loading}
+                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2.5 rounded-lg text-sm transition-colors disabled:opacity-50 cursor-pointer">
                 {loading ? 'Creating account…' : 'Create Account'}
               </button>
             </form>
 
             <p className="text-center text-sm text-gray-500 mt-5">
               Already have an account?{' '}
-              <Link href="/admin-login" className="text-purple-600 hover:underline font-medium">
-                Sign in
-              </Link>
+              <Link href="/driver-login" className="text-orange-500 hover:underline font-medium">Sign in</Link>
             </p>
           </div>
         </div>

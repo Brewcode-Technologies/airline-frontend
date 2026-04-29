@@ -103,13 +103,24 @@ export default function AdminOrdersPage() {
     else showToast('Failed to update status', 'error');
   };
 
-  const field = (label: string, key: keyof typeof emptyForm, type = 'text') => (
-    <div className="mb-4">
-      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-      <input type={type} value={form[key]} onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-    </div>
-  );
+  const field = (label: string, key: keyof typeof emptyForm, type = 'text') => {
+    const placeholders: Record<string, string> = {
+      orderNumber: 'e.g. ORD-2025-0010',
+      scheduledAt: '',
+    };
+    return (
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+        <input
+          type={type}
+          value={form[key]}
+          onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+          placeholder={placeholders[key] || ''}
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+    );
+  };
 
   return (
     <div>
@@ -138,7 +149,7 @@ export default function AdminOrdersPage() {
                 <th className="px-4 py-3 w-10">
                   <input type="checkbox" checked={allChecked} onChange={toggleAll} className="w-4 h-4 cursor-pointer" />
                 </th>
-                {['Order #', 'Vendor', 'Driver', 'Status', 'Scheduled', 'Actions'].map((h) => (
+                {['Order #', 'Flight', 'Gate', 'Pax', 'Vendor', 'Driver', 'Status', 'Scheduled', 'Actions'].map((h) => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{h}</th>
                 ))}
               </tr>
@@ -150,6 +161,9 @@ export default function AdminOrdersPage() {
                     <input type="checkbox" checked={checkedIds.has(o._id)} onChange={() => toggleOne(o._id)} className="w-4 h-4 cursor-pointer" />
                   </td>
                   <td className="px-4 py-3 font-medium text-gray-800">{o.orderNumber}</td>
+                  <td className="px-4 py-3 text-gray-600">{o.flightNumber || '—'}</td>
+                  <td className="px-4 py-3 text-gray-600">{o.gate || '—'}</td>
+                  <td className="px-4 py-3 text-gray-600">{o.passengerCount ?? '—'}</td>
                   <td className="px-4 py-3 text-gray-600">{o.vendor?.name || '—'}</td>
                   <td className="px-4 py-3 text-gray-600">{o.driver?.vehicle || '—'}</td>
                   <td className="px-4 py-3"><Badge label={o.status} /></td>
@@ -164,7 +178,7 @@ export default function AdminOrdersPage() {
                   </td>
                 </tr>
               ))}
-              {orders.length === 0 && <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">No orders found</td></tr>}
+              {orders.length === 0 && <tr><td colSpan={10} className="px-4 py-8 text-center text-gray-400">No orders found</td></tr>}
             </tbody>
           </table>
         </div>

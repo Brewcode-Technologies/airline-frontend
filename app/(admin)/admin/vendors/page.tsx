@@ -60,13 +60,26 @@ export default function VendorsPage() {
     setCheckedIds(new Set()); setModal(null);
   };
 
-  const tf = (label: string, key: keyof typeof emptyForm, type = 'text') => (
-    <div className="mb-4">
-      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-      <input type={type} value={form[key]} onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-    </div>
-  );
+  const tf = (label: string, key: keyof typeof emptyForm, type = 'text') => {
+    const placeholders: Record<string, string> = {
+      name:    'e.g. IndiGo Catering Services',
+      contact: 'e.g. +91 98765 43210',
+      email:   'e.g. vendor@airline.com',
+      address: 'e.g. Terminal 1, IGI Airport, Delhi',
+    };
+    return (
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+        <input
+          type={type}
+          value={form[key]}
+          onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+          placeholder={placeholders[key] || ''}
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+    );
+  };
 
   return (
     <div>

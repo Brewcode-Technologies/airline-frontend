@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { MdMenu, MdClose, MdDashboard, MdShoppingCart, MdPeople, MdBusiness, MdInventory, MdLocationOn, MdBarChart, MdManageAccounts, MdPerson, MdNavigation, MdCameraAlt, MdHistory } from 'react-icons/md';
+import { MdMenu, MdClose, MdDashboard, MdShoppingCart, MdPeople, MdBusiness, MdInventory, MdLocationOn, MdBarChart, MdManageAccounts, MdPerson, MdNavigation, MdCameraAlt, MdHistory, MdShoppingBag } from 'react-icons/md';
 
 const PORTALS = {
   admin: {
@@ -30,6 +30,8 @@ const PORTALS = {
       { href: '/airline/history',   label: 'History',   icon: MdHistory },
       { href: '/airline/summary',   label: 'Summary',   icon: MdBarChart },
       { href: '/airline/tracking',  label: 'Tracking',  icon: MdLocationOn },
+      { href: '/airline/punchout',  label: 'PunchOut',  icon: MdShoppingBag },
+      { href: '/airline/profile',   label: 'Profile',   icon: MdPerson },
     ],
   },
   driver: {

@@ -52,13 +52,24 @@ export default function DriversPage() {
     deleteDriver.fulfilled.match(r) ? showToast('Driver deleted') : showToast('Failed to delete driver', 'error');
   };
 
-  const tf = (label: string, key: 'licenseNumber' | 'vehicle') => (
-    <div className="mb-4">
-      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-      <input type="text" value={form[key]} onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-    </div>
-  );
+  const tf = (label: string, key: 'licenseNumber' | 'vehicle') => {
+    const placeholders: Record<string, string> = {
+      licenseNumber: 'e.g. DL-AP-2019-001234',
+      vehicle:       'e.g. Tata Ace Truck',
+    };
+    return (
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+        <input
+          type="text"
+          value={form[key]}
+          onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+          placeholder={placeholders[key]}
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+    );
+  };
 
   return (
     <div>

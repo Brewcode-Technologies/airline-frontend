@@ -63,14 +63,25 @@ export default function UsersPage() {
     setCheckedIds(new Set()); setModal(null);
   };
 
-  const tf = (label: string, key: keyof typeof emptyForm, type = 'text') => (
-    <div className="mb-4">
-      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-      <input type={type} value={form[key]} onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-        placeholder={key === 'password' && modal === 'edit' ? 'Leave blank to keep current' : ''}
-        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-    </div>
-  );
+  const tf = (label: string, key: keyof typeof emptyForm, type = 'text') => {
+    const placeholders: Record<string, string> = {
+      name:     'e.g. Ravi Kumar',
+      email:    'e.g. ravi@driver.com',
+      password: modal === 'edit' ? 'Leave blank to keep current password' : 'Min. 8 characters',
+    };
+    return (
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+        <input
+          type={type}
+          value={form[key]}
+          onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+          placeholder={placeholders[key] || ''}
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+    );
+  };
 
   return (
     <div>

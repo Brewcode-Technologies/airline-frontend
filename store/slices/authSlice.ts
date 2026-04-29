@@ -39,6 +39,18 @@ export const fetchMe = createAsyncThunk(
   }
 );
 
+export const updateMe = createAsyncThunk(
+  'auth/updateMe',
+  async (payload: { name?: string; airport?: string; gate?: string }, { rejectWithValue }) => {
+    try {
+      const { data } = await api.put('/auth/me', payload);
+      return data.data;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to update profile');
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -67,7 +79,8 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-      .addCase(fetchMe.fulfilled, (state, action) => { state.user = action.payload; });
+      .addCase(fetchMe.fulfilled, (state, action) => { state.user = action.payload; })
+      .addCase(updateMe.fulfilled, (state, action) => { state.user = action.payload; });
   },
 });
 

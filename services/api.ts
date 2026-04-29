@@ -10,4 +10,20 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err.response?.status === 401 && typeof window !== 'undefined') {
+      const role = localStorage.getItem('role');
+      localStorage.clear();
+      const redirect =
+        role === 'airline' ? '/airline-login' :
+        role === 'driver'  ? '/driver-login'  :
+        '/admin-login';
+      window.location.replace(redirect);
+    }
+    return Promise.reject(err);
+  }
+);
+
 export default api;
