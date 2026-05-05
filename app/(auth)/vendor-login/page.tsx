@@ -4,11 +4,11 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { login } from '@/store/slices/authSlice';
-import { MdEmail, MdLocalShipping } from 'react-icons/md';
+import { MdEmail, MdBusiness } from 'react-icons/md';
 import PasswordInput from '@/components/ui/PasswordInput';
 import Link from 'next/link';
 
-function DriverLoginContent() {
+function VendorLoginContent() {
   const dispatch = useAppDispatch();
   const router   = useRouter();
   const { loading, error } = useAppSelector((s) => s.auth);
@@ -19,7 +19,7 @@ function DriverLoginContent() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     const role  = localStorage.getItem('role');
-    if (token && role === 'driver') router.replace('/driver/orders');
+    if (token && role === 'vendor') router.replace('/vendor/dashboard');
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -28,19 +28,19 @@ function DriverLoginContent() {
     setFailed(false);
     const result = await dispatch(login(form));
     if (login.fulfilled.match(result)) {
-      if (result.payload.user.role !== 'driver') {
+      if (result.payload.user.role !== 'vendor') {
         localStorage.clear();
-        setRoleError('Access denied. This portal is for drivers only.');
+        setRoleError('Access denied. This portal is for vendors only.');
         setFailed(true);
         return;
       }
-      router.push('/driver/orders');
+      router.push('/vendor/dashboard');
     } else {
       setFailed(true);
     }
   };
 
-  const inputCls = 'w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500';
+  const inputCls = 'w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500';
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
@@ -50,13 +50,13 @@ function DriverLoginContent() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="bg-orange-500 px-6 py-6 flex items-center gap-4">
+          <div className="bg-emerald-600 px-6 py-6 flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
-              <MdLocalShipping size={28} className="text-white" />
+              <MdBusiness size={28} className="text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">Driver Portal</h2>
-              <p className="text-orange-100 text-sm">Sign in to manage deliveries</p>
+              <h2 className="text-xl font-bold text-white">Vendor Portal</h2>
+              <p className="text-emerald-100 text-sm">Sign in to manage your orders</p>
             </div>
           </div>
 
@@ -67,13 +67,13 @@ function DriverLoginContent() {
                 <div className="relative">
                   <MdEmail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    placeholder="ravi@driver.com" className={inputCls} />
+                    placeholder="vendor@company.com" className={inputCls} />
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
                 <PasswordInput value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  placeholder="Enter your password" required focusColor="focus:ring-orange-500" />
+                  placeholder="Enter your password" required focusColor="focus:ring-emerald-500" />
               </div>
 
               {(error || roleError) && (
@@ -82,7 +82,7 @@ function DriverLoginContent() {
                   {failed && (
                     <p className="text-xs text-red-500">
                       Forgot your password?{' '}
-                      <Link href="/driver-change-password" className="font-semibold underline hover:text-red-700">
+                      <Link href="/vendor-change-password" className="font-semibold underline hover:text-red-700">
                         Change password
                       </Link>
                     </p>
@@ -91,12 +91,12 @@ function DriverLoginContent() {
               )}
 
               <button type="submit" disabled={loading}
-                className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2.5 rounded-lg text-sm transition-colors disabled:opacity-50 cursor-pointer">
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 rounded-lg text-sm transition-colors disabled:opacity-50 cursor-pointer">
                 {loading ? 'Signing in…' : 'Sign in'}
               </button>
 
               <div className="flex justify-end text-sm">
-                <Link href="/driver-change-password" className="text-orange-500 hover:underline font-medium">
+                <Link href="/vendor-change-password" className="text-emerald-600 hover:underline font-medium">
                   Change password
                 </Link>
               </div>
@@ -108,6 +108,6 @@ function DriverLoginContent() {
   );
 }
 
-export default function DriverLoginPage() {
-  return <Suspense><DriverLoginContent /></Suspense>;
+export default function VendorLoginPage() {
+  return <Suspense><VendorLoginContent /></Suspense>;
 }

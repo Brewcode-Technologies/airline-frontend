@@ -7,7 +7,7 @@ import { fetchMe } from '@/store/slices/authSlice';
 import Spinner from '@/components/ui/Spinner';
 
 interface RouteGuardProps {
-  allowedRole: 'admin' | 'airline' | 'driver';
+  allowedRole: 'admin' | 'airline' | 'driver' | 'vendor';
   loginPath: string;
   children: React.ReactNode;
 }
@@ -27,8 +27,12 @@ export default function RouteGuard({ allowedRole, loginPath, children }: RouteGu
     }
 
     // rehydrate Redux auth.user from token after page refresh
-    dispatch(fetchMe());
-    setAuthorized(true);
+    dispatch(fetchMe()).unwrap()
+      .then(() => setAuthorized(true))
+      .catch(() => {
+        localStorage.clear();
+        router.replace(loginPath);
+      });
   }, []);
 
   if (!authorized) return <Spinner fullPage label="Checking access…" />;

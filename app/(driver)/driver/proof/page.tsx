@@ -7,12 +7,17 @@ import PageHeader from '@/components/ui/PageHeader';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
 import api from '@/services/api';
+import { MdCameraAlt, MdLock, MdCheckCircle, MdCancel } from 'react-icons/md';
 
 export default function ProofPage() {
   const dispatch = useAppDispatch();
   const { list: orders } = useAppSelector((s) => s.orders);
 
   const [orderId, setOrderId]     = useState('');
+  const [otp, setOtp]             = useState('');
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpError, setOtpError]   = useState('');
+  const [otpLoading, setOtpLoading] = useState(false);
   const [notes, setNotes]         = useState('');
   const [signature, setSignature] = useState('');
   const [file, setFile]           = useState<File | null>(null);
@@ -30,11 +35,28 @@ export default function ProofPage() {
     setSubmitted(false);
     setFile(null);
     setPreview(null);
+    setOtp('');
+    setOtpVerified(false);
+    setOtpError('');
     if (!id) return;
     try {
       const { data } = await api.get(`/orders/${id}/proof`);
       setProof(data.data);
     } catch { setProof(null); }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otp.trim()) return;
+    setOtpLoading(true);
+    setOtpError('');
+    try {
+      await api.post(`/orders/${orderId}/verify-otp`, { otp });
+      setOtpVerified(true);
+    } catch (err: any) {
+      setOtpError(err.response?.data?.message || 'Invalid OTP');
+    } finally {
+      setOtpLoading(false);
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,7 +105,7 @@ export default function ProofPage() {
         proof ? (
           /* ── Already submitted ── */
           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-4">
-            <h3 className="font-semibold text-gray-800">Proof Submitted ✅</h3>
+            <h3 className="font-semibold text-gray-800 flex items-center gap-2"><MdCheckCircle size={18} className="text-green-500" /> Proof Submitted</h3>
 
             {proof.imageUrl && (
               <div>
@@ -110,58 +132,90 @@ export default function ProofPage() {
           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-4">
             <h3 className="font-semibold text-gray-800">Submit Proof</h3>
 
-            {/* Photo Upload */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Photo</label>
-              <div
-                onClick={() => fileRef.current?.click()}
-                className="w-full border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition-all"
-              >
-                {preview ? (
-                  <img src={preview} alt="Preview"
-                    className="w-full max-w-xs rounded-lg object-cover mb-2" />
-                ) : (
-                  <>
-                    <span className="text-3xl mb-2">📷</span>
-                    <p className="text-sm text-gray-500">Tap to take photo or upload image</p>
-                    <p className="text-xs text-gray-400 mt-1">JPG, PNG, WEBP — max 5MB</p>
-                  </>
-                )}
+            {/* OTP Verification */}
+            {!otpVerified ? (
+              <div className="space-y-3">
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                  <p className="text-sm font-semibold text-amber-800 mb-1 flex items-center gap-1"><MdLock size={15} /> Enter Delivery OTP</p>
+                  <p className="text-xs text-amber-600">Ask the gate agent for the 4-digit OTP to confirm delivery</p>
+                </div>
+                <div className="flex gap-3">
+                  <input
+                    type="number"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    placeholder="Enter 4-digit OTP"
+                    maxLength={4}
+                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 text-center text-xl tracking-widest font-mono focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  />
+                  <Button onClick={handleVerifyOtp} disabled={otpLoading || otp.length < 4}>
+                    {otpLoading ? 'Verifying…' : 'Verify'}
+                  </Button>
+                </div>
+                {otpError && <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 flex items-center gap-1"><MdCancel size={13} /> {otpError}</p>}
               </div>
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                className="hidden"
-                onChange={handleFileChange}
-              />
-              {file && (
-                <p className="text-xs text-green-600 mt-1">✅ {file.name} selected</p>
-              )}
-            </div>
+            ) : (
+              <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex items-center gap-2">
+                <MdCheckCircle size={18} className="text-green-600" />
+                <p className="text-sm font-semibold text-green-700">OTP Verified — proceed to submit proof</p>
+              </div>
+            )}
 
-            {/* Signature / PIN */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Agent Signature / PIN</label>
-              <input type="text" value={signature} onChange={(e) => setSignature(e.target.value)}
-                placeholder="Agent PIN or signature"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500" />
-            </div>
+            {/* Rest of form — only shown after OTP verified */}
+            {otpVerified && (
+              <>
+                {/* Photo Upload */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Photo</label>
+                  <div
+                    onClick={() => fileRef.current?.click()}
+                    className="w-full border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition-all"
+                  >
+                    {preview ? (
+                      <img src={preview} alt="Preview"
+                        className="w-full max-w-xs rounded-lg object-cover mb-2" />
+                    ) : (
+                      <>
+                        <MdCameraAlt size={32} className="text-gray-300 mb-2" />
+                        <p className="text-sm text-gray-500">Tap to take photo or upload image</p>
+                        <p className="text-xs text-gray-400 mt-1">JPG, PNG, WEBP — max 5MB</p>
+                      </>
+                    )}
+                  </div>
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                  {file && <p className="text-xs text-green-600 mt-1 flex items-center gap-1"><MdCheckCircle size={12} /> {file.name} selected</p>}
+                </div>
 
-            {/* Notes */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-              <textarea value={notes} onChange={(e) => setNotes(e.target.value)}
-                rows={3} placeholder="Delivery notes..."
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500" />
-            </div>
+                {/* Signature */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Agent Signature / PIN</label>
+                  <input type="text" value={signature} onChange={(e) => setSignature(e.target.value)}
+                    placeholder="Agent PIN or signature"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500" />
+                </div>
 
-            {submitted && <p className="text-sm text-green-600">Proof submitted successfully!</p>}
+                {/* Notes */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                  <textarea value={notes} onChange={(e) => setNotes(e.target.value)}
+                    rows={3} placeholder="Delivery notes..."
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500" />
+                </div>
 
-            <Button onClick={handleSubmit} disabled={loading}>
-              {loading ? 'Submitting…' : 'Submit Proof'}
-            </Button>
+                {submitted && <p className="text-sm text-green-600">Proof submitted successfully!</p>}
+
+                <Button onClick={handleSubmit} disabled={loading}>
+                  {loading ? 'Submitting…' : 'Submit Proof'}
+                </Button>
+              </>
+            )}
           </div>
         )
       )}

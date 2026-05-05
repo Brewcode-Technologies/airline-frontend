@@ -20,7 +20,7 @@ import Badge from '@/components/ui/Badge';
 const PIE_COLORS = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#f97316'];
 
 const quickLinks = [
-  { href: '/airline/bundles',  label: 'Bundles',  icon: MdShoppingCart, color: 'text-blue-600 bg-blue-50' },
+  { href: '/airline/create-orders',  label: 'Create Orders',  icon: MdShoppingCart, color: 'text-blue-600 bg-blue-50' },
   { href: '/airline/tracking', label: 'Tracking', icon: MdLocationOn,   color: 'text-red-600 bg-red-50' },
   { href: '/airline/history',  label: 'History',  icon: MdHistory,      color: 'text-green-600 bg-green-50' },
   { href: '/airline/summary',  label: 'Summary',  icon: MdSummarize,    color: 'text-purple-600 bg-purple-50' },
@@ -58,7 +58,7 @@ export default function AirlineDashboard() {
 
       {/* Stat Cards — clickable */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <button onClick={() => router.push('/airline/bundles')}
+        <button onClick={() => router.push('/airline/create-orders')}
           className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4 shadow-sm hover:shadow-md hover:border-blue-300 transition-all text-left">
           <div className="p-3 rounded-lg bg-blue-50 text-blue-600"><MdShoppingCart size={22} /></div>
           <div>
@@ -76,7 +76,7 @@ export default function AirlineDashboard() {
           </div>
         </button>
 
-        <button onClick={() => router.push('/airline/bundles')}
+        <button onClick={() => router.push('/airline/create-orders')}
           className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4 shadow-sm hover:shadow-md hover:border-yellow-300 transition-all text-left">
           <div className="p-3 rounded-lg bg-yellow-50 text-yellow-600"><MdPending size={22} /></div>
           <div>
@@ -210,7 +210,7 @@ export default function AirlineDashboard() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {recentOrders.map((o) => (
-                <tr key={o._id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push('/airline/bundles')}>
+                <tr key={o._id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push('/airline/create-orders')}>
                   <td className="px-4 py-2.5 font-medium text-gray-800 text-xs">{o.orderNumber}</td>
                   <td className="px-4 py-2.5 text-gray-500 text-xs">{o.vendor?.name || '—'}</td>
                   <td className="px-4 py-2.5 text-gray-500 text-xs">{o.scheduledAt ? new Date(o.scheduledAt).toLocaleDateString() : '—'}</td>

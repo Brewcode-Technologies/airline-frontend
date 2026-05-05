@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchTracking, clearLocations } from '@/store/slices/trackingSlice';
 import { fetchOrders } from '@/store/slices/ordersSlice';
@@ -16,16 +16,27 @@ export default function AdminTrackingPage() {
   const [orderId, setOrderId] = useState('');
   const [searched, setSearched] = useState(false);
   const [view, setView] = useState<'map' | 'table'>('map');
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     dispatch(fetchOrders());
-    return () => { dispatch(clearLocations()); };
+    return () => { dispatch(clearLocations()); if (pollRef.current) clearInterval(pollRef.current); };
   }, [dispatch]);
 
   const handleSearch = () => {
     if (!orderId) return;
     setSearched(true);
     dispatch(fetchTracking(orderId));
+    if (pollRef.current) clearInterval(pollRef.current);
+    pollRef.current = setInterval(() => dispatch(fetchTracking(orderId)), 10000);
+  };
+
+  // Stop polling when order changes
+  const handleOrderChange = (id: string) => {
+    setOrderId(id);
+    setSearched(false);
+    dispatch(clearLocations());
+    if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
   };
 
   const trackableOrders = orders.filter((o) =>
@@ -45,7 +56,7 @@ export default function AdminTrackingPage() {
           ) : (
             <select
               value={orderId}
-              onChange={(e) => { setOrderId(e.target.value); setSearched(false); dispatch(clearLocations()); }}
+              onChange={(e) => { handleOrderChange(e.target.value); }}
               className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">— Select Order —</option>

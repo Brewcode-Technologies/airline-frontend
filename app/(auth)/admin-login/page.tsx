@@ -4,7 +4,8 @@ import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { login } from '@/store/slices/authSlice';
-import { MdEmail, MdLock, MdAdminPanelSettings } from 'react-icons/md';
+import { MdEmail, MdAdminPanelSettings } from 'react-icons/md';
+import PasswordInput from '@/components/ui/PasswordInput';
 import Link from 'next/link';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
@@ -16,8 +17,8 @@ function AdminLoginContent() {
   const params      = useSearchParams();
   const googleError = params.get('error');
 
-  const [form, setForm]         = useState({ email: '', password: '' });
-  const [tab, setTab]           = useState<'email' | 'google'>('email');
+  const [form, setForm]           = useState({ email: '', password: '' });
+  const [tab, setTab]             = useState<'email' | 'google'>('email');
   const [roleError, setRoleError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,7 +35,7 @@ function AdminLoginContent() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">✈ Airline Logistics</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Airline Logistics</h1>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
@@ -71,12 +72,8 @@ function AdminLoginContent() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                  <div className="relative">
-                    <MdLock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input type="password" required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
-                      placeholder="Min. 6 characters"
-                      className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500" />
-                  </div>
+                  <PasswordInput value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    placeholder="Min. 6 characters" required focusColor="focus:ring-purple-500" />
                 </div>
 
                 {(error || roleError) && (
@@ -94,10 +91,7 @@ function AdminLoginContent() {
                   <p>Password: <span className="font-mono text-gray-800 select-all">password123</span></p>
                 </div>
 
-                <div className="flex items-center justify-between text-sm text-gray-500">
-                  <p>Don&apos;t have an account?{' '}
-                    <Link href="/admin-register" className="text-purple-600 hover:underline font-medium">Sign up</Link>
-                  </p>
+                <div className="flex justify-end text-sm">
                   <Link href="/admin-change-password" className="text-purple-600 hover:underline font-medium">Change password</Link>
                 </div>
               </form>

@@ -30,7 +30,7 @@ function SlaCountdown({ deadline }: { deadline: string }) {
 
   return (
     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${breached ? 'bg-red-100 text-red-600' : 'bg-orange-100 text-orange-600'}`}>
-      ⏱ {remaining}
+      {remaining}
     </span>
   );
 }
@@ -56,9 +56,40 @@ export default function DriverOrdersPage() {
     if (found) setMyDriverId(found._id);
   }, [drivers]);
 
+  const openGoogleMapsNavigation = (order: any) => {
+    const destination = order.gate
+      ? `${order.gate} gate, airport`
+      : order.vendor?.name || 'airport';
+    const encodedDest = encodeURIComponent(destination);
+
+    if (!navigator.geolocation) {
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodedDest}&travelmode=driving`, '_blank');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        window.open(
+          `https://www.google.com/maps/dir/?api=1&origin=${latitude},${longitude}&destination=${encodedDest}&travelmode=driving`,
+          '_blank'
+        );
+      },
+      () => {
+        // Permission denied — open Maps without origin
+        window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodedDest}&travelmode=driving`, '_blank');
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  };
+
   const updateStatus = async (id: string, action: 'picked' | 'enroute' | 'delivered') => {
     await api.put(`/orders/${id}/${action}`);
     dispatch(fetchOrders());
+    if (action === 'picked') {
+      const order = orders.find((o) => o._id === id);
+      if (order) openGoogleMapsNavigation(order);
+    }
   };
 
   // Filter by driver._id (the Driver document id, not the user id)
@@ -66,7 +97,9 @@ export default function DriverOrdersPage() {
     ['assigned', 'picked', 'enroute'].includes(o.status) &&
     myDriverId &&
     (o.driver?._id === myDriverId || String(o.driver?._id) === myDriverId || o.driver === myDriverId)
-  );
+  ).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  const isNew = (o: any) => Date.now() - new Date(o.createdAt).getTime() < 30 * 60 * 1000;
 
   return (
     <div>
@@ -85,7 +118,10 @@ export default function DriverOrdersPage() {
             <tbody className="divide-y divide-gray-100">
               {myOrders.map((o) => (
                 <tr key={o._id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium text-gray-800">{o.orderNumber}</td>
+                  <td className="px-4 py-3 font-medium text-gray-800">
+                    {o.orderNumber}
+                    {isNew(o) && <span className="ml-2 inline-flex px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700 ring-1 ring-green-300">NEW</span>}
+                  </td>
                   <td className="px-4 py-3 text-gray-600">{o.flightNumber || '—'}</td>
                   <td className="px-4 py-3 text-gray-600">{o.gate || '—'}</td>
                   <td className="px-4 py-3 text-gray-600">{o.passengerCount ?? '—'}</td>
@@ -95,7 +131,7 @@ export default function DriverOrdersPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2 flex-wrap">
-                      {o.status === 'assigned' && <Button size="sm" onClick={() => updateStatus(o._id, 'picked')}>Picked</Button>}
+                      {o.status === 'assigned' && <Button size="sm" onClick={() => updateStatus(o._id, 'picked')}>Picked — Navigate</Button>}
                       {o.status === 'picked'   && <Button size="sm" onClick={() => updateStatus(o._id, 'enroute')}>En Route</Button>}
                       {o.status === 'enroute'  && <Button size="sm" variant="secondary" onClick={() => updateStatus(o._id, 'delivered')}>Delivered</Button>}
                     </div>

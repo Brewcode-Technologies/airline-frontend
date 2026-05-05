@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { login } from '@/store/slices/authSlice';
-import { MdEmail, MdLock, MdFlight } from 'react-icons/md';
+import { MdEmail, MdFlight } from 'react-icons/md';
+import PasswordInput from '@/components/ui/PasswordInput';
 import Link from 'next/link';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
@@ -19,6 +20,13 @@ function AirlineLoginContent() {
   const [form, setForm]           = useState({ email: '', password: '' });
   const [tab, setTab]             = useState<'email' | 'google'>('email');
   const [roleError, setRoleError] = useState('');
+
+  // Redirect if already logged in as airline
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const role  = localStorage.getItem('role');
+    if (token && role === 'airline') router.replace('/airline/dashboard');
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,12 +79,8 @@ function AirlineLoginContent() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                  <div className="relative">
-                    <MdLock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input type="password" required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
-                      placeholder="Min. 6 characters"
-                      className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                  </div>
+                  <PasswordInput value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    placeholder="Min. 6 characters" required focusColor="focus:ring-blue-500" />
                 </div>
 
                 {(error || roleError) && (
@@ -94,10 +98,7 @@ function AirlineLoginContent() {
                   <p>Password: <span className="font-mono text-gray-800 select-all">password123</span></p>
                 </div>
 
-                <div className="flex items-center justify-between text-sm text-gray-500">
-                  <p>Don&apos;t have an account?{' '}
-                    <Link href="/airline-register" className="text-blue-600 hover:underline font-medium">Sign up</Link>
-                  </p>
+                <div className="flex items-center justify-end text-sm text-gray-500">
                   <Link href="/airline-change-password" className="text-blue-600 hover:underline font-medium">Change password</Link>
                 </div>
               </form>

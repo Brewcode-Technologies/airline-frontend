@@ -6,10 +6,10 @@ import { fetchUsers, createUser, updateUser, deleteUser } from '@/store/slices/u
 import PageHeader from '@/components/ui/PageHeader';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
-import Modal from '@/components/ui/Modal';
 import Spinner from '@/components/ui/Spinner';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import Toast from '@/components/ui/Toast';
+import { MdClose } from 'react-icons/md';
 
 const ROLES = ['admin', 'airline', 'driver'];
 const emptyForm = { name: '', email: '', password: '', role: 'driver' };
@@ -149,22 +149,34 @@ export default function UsersPage() {
       )}
 
       {modal && !['delete', 'bulkDelete'].includes(modal) && (
-        <Modal title={modal === 'create' ? 'New User' : 'Edit User'} onClose={close}>
-          {tf('Name', 'name')}
-          {tf('Email', 'email', 'email')}
-          {tf('Password', 'password', 'password')}
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-            <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
-              {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
-            </select>
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div className="absolute inset-0 bg-black/40" onClick={close} />
+          <div className="relative w-full max-w-md bg-white h-full shadow-2xl animate-slide-in-right flex flex-col">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
+              <h2 className="text-lg font-semibold text-gray-900">{modal === 'create' ? 'New User' : 'Edit User'}</h2>
+              <button onClick={close} className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500 cursor-pointer"><MdClose size={20} /></button>
+            </div>
+            <div className="flex-1 px-6 py-5 space-y-4 overflow-y-auto">
+              {tf('Name', 'name')}
+              {tf('Email', 'email', 'email')}
+              {tf('Password', 'password', 'password')}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
+            </div>
+            <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex gap-3">
+              <button onClick={close} className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg cursor-pointer">Cancel</button>
+              <button onClick={modal === 'create' ? handleCreate : handleEdit}
+                className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg cursor-pointer">
+                {modal === 'create' ? 'Create' : 'Save'}
+              </button>
+            </div>
           </div>
-          <div className="flex justify-end gap-3 mt-2">
-            <Button variant="secondary" onClick={close}>Cancel</Button>
-            <Button onClick={modal === 'create' ? handleCreate : handleEdit}>{modal === 'create' ? 'Create' : 'Save'}</Button>
-          </div>
-        </Modal>
+        </div>
       )}
     </div>
   );
