@@ -14,8 +14,8 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401 && typeof window !== 'undefined') {
-      // Don't auto-logout on /auth/me — RouteGuard handles that
-      if (!err.config?.url?.includes('/auth/me')) {
+      // Don't auto-redirect on login or /auth/me — let the page handle the error
+      if (!err.config?.url?.includes('/auth/me') && !err.config?.url?.includes('/auth/login')) {
         const role = localStorage.getItem('role');
         localStorage.clear();
         const redirect =

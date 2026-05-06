@@ -10,9 +10,11 @@ import Spinner from '@/components/ui/Spinner';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import Toast from '@/components/ui/Toast';
 import { MdClose } from 'react-icons/md';
+import PasswordInput from '@/components/ui/PasswordInput';
 
-const ROLES = ['admin', 'airline', 'driver'];
-const emptyForm = { name: '', email: '', password: '', role: 'driver' };
+const ROLES = ['admin', 'airline', 'driver', 'vendor'];
+const ROLE_LABELS: Record<string, string> = { admin: 'Admin', airline: 'Airline Staff', driver: 'Driver', vendor: 'Vendor' };
+const emptyForm = { name: '', email: '', password: '', role: 'airline' };
 
 export default function UsersPage() {
   const dispatch = useAppDispatch();
@@ -65,9 +67,9 @@ export default function UsersPage() {
 
   const tf = (label: string, key: keyof typeof emptyForm, type = 'text') => {
     const placeholders: Record<string, string> = {
-      name:     'e.g. Ravi Kumar',
-      email:    'e.g. ravi@driver.com',
-      password: modal === 'edit' ? 'Leave blank to keep current password' : 'Min. 8 characters',
+      name:     'e.g. John Smith',
+      email:    'e.g. john@airline.com',
+      password: modal === 'edit' ? 'Leave blank to keep current password' : 'Min. 6 characters',
     };
     return (
       <div className="mb-4">
@@ -159,12 +161,16 @@ export default function UsersPage() {
             <div className="flex-1 px-6 py-5 space-y-4 overflow-y-auto">
               {tf('Name', 'name')}
               {tf('Email', 'email', 'email')}
-              {tf('Password', 'password', 'password')}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <PasswordInput value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  placeholder={modal === 'edit' ? 'Leave blank to keep current password' : 'Min. 6 characters'} />
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
                 <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
+                  {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
                 </select>
               </div>
             </div>

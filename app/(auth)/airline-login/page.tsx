@@ -60,8 +60,8 @@ function AirlineLoginContent() {
               <MdFlight size={28} className="text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">Airline Portal</h2>
-              <p className="text-blue-200 text-sm">Sign in to manage shipments</p>
+              <h2 className="text-xl font-bold text-white">Airline Staff Portal</h2>
+              <p className="text-blue-200 text-sm">Sign in to manage your shipments</p>
             </div>
           </div>
 
@@ -98,7 +98,7 @@ function AirlineLoginContent() {
 
                 <button type="submit" disabled={loading}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg text-sm transition-colors disabled:opacity-50 cursor-pointer">
-                  {loading ? 'Signing in…' : 'Sign in as Airline'}
+                  {loading ? 'Signing in…' : 'Sign in as Airline Staff'}
                 </button>
 
                 <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-xs text-gray-500">
