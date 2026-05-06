@@ -24,6 +24,7 @@ export default function VendorsPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
   const [form, setForm] = useState(emptyForm);
+  const [formError, setFormError] = useState('');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => setToast({ message, type });
@@ -35,26 +36,48 @@ export default function VendorsPage() {
   const toggleAll = () => setCheckedIds(allChecked ? new Set() : new Set(vendors.map((v) => v._id)));
   const toggleOne = (id: string) => setCheckedIds((prev) => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s; });
 
-  const openCreate = () => { setForm(emptyForm); setModal('create'); };
+  const openCreate = () => { setForm(emptyForm); setFormError(''); setModal('create'); };
   const openEdit = (v: any) => {
     setSelected(v);
     setForm({ name: v.name, contact: v.contact || '', email: v.email || '', address: v.address || '', password: '' });
+    setFormError('');
     setModal('edit');
   };
   const close = () => { setModal(null); setSelected(null); };
 
+  const friendlyError = (msg: string) => {
+    if (msg.includes('Access denied')) return 'Session expired. Please re-login as admin.';
+    return msg;
+  };
+
+  const validateForm = () => {
+    if (!form.name.trim()) { setFormError('Name is required'); return false; }
+    if (!form.email.trim()) { setFormError('Email is required'); return false; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { setFormError('Please enter a valid email address'); return false; }
+    if (modal === 'create' && !form.password) { setFormError('Password is required'); return false; }
+    if (form.password && form.password.length < 6) { setFormError('Password must be at least 6 characters'); return false; }
+    setFormError('');
+    return true;
+  };
+
   const handleCreate = async () => {
-    const r = await dispatch(createVendor(form)); close();
-    createVendor.fulfilled.match(r) ? showToast('Vendor created successfully') : showToast('Failed to create vendor', 'error');
+    if (!validateForm()) return;
+    const r = await dispatch(createVendor(form));
+    if (createVendor.fulfilled.match(r)) { close(); showToast('Vendor created successfully'); }
+    else setFormError(friendlyError((r.payload as string) || 'Failed to create vendor'));
   };
   const handleEdit = async () => {
-    const r = await dispatch(updateVendor({ id: selected._id, payload: form })); close();
-    updateVendor.fulfilled.match(r) ? showToast('Vendor updated successfully') : showToast('Failed to update vendor', 'error');
+    if (!form.name.trim()) { setFormError('Name is required'); return; }
+    setFormError('');
+    const r = await dispatch(updateVendor({ id: selected._id, payload: form }));
+    if (updateVendor.fulfilled.match(r)) { close(); showToast('Vendor updated successfully'); }
+    else setFormError(friendlyError((r.payload as string) || 'Failed to update vendor'));
   };
   const handleDelete = async () => {
     if (!deleteId) return;
-    const r = await dispatch(deleteVendor(deleteId)); setDeleteId(null); setModal(null);
-    deleteVendor.fulfilled.match(r) ? showToast('Vendor deleted') : showToast('Failed to delete vendor', 'error');
+    const r = await dispatch(deleteVendor(deleteId));
+    if (deleteVendor.fulfilled.match(r)) { setDeleteId(null); setModal(null); showToast('Vendor deleted'); }
+    else { setDeleteId(null); setModal(null); showToast((r.payload as string) || 'Failed to delete vendor', 'error'); }
   };
   const handleBulkDelete = async () => {
     await Promise.all([...checkedIds].map((id) => dispatch(deleteVendor(id))));
@@ -159,6 +182,9 @@ export default function VendorsPage() {
               <button onClick={close} className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500 cursor-pointer"><MdClose size={20} /></button>
             </div>
             <div className="flex-1 px-6 py-5 space-y-4 overflow-y-auto">
+              {formError && (
+                <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{formError}</p>
+              )}
               {tf('Name', 'name')}
               {tf('Contact', 'contact')}
               {tf('Email', 'email', 'email')}

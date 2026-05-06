@@ -25,6 +25,7 @@ export default function UsersPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
   const [form, setForm] = useState(emptyForm);
+  const [formError, setFormError] = useState('');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => setToast({ message, type });
@@ -36,28 +37,49 @@ export default function UsersPage() {
   const toggleAll = () => setCheckedIds(allChecked ? new Set() : new Set(users.map((u) => u._id)));
   const toggleOne = (id: string) => setCheckedIds((prev) => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s; });
 
-  const openCreate = () => { setForm(emptyForm); setModal('create'); };
+  const openCreate = () => { setForm(emptyForm); setFormError(''); setModal('create'); };
   const openEdit = (u: any) => {
     setSelected(u);
     setForm({ name: u.name, email: u.email, password: '', role: u.role });
+    setFormError('');
     setModal('edit');
   };
   const close = () => { setModal(null); setSelected(null); };
 
+  const friendlyError = (msg: string) => {
+    if (msg.includes('Access denied')) return 'Session expired. Please re-login as admin.';
+    return msg;
+  };
+
+  const validateForm = () => {
+    if (!form.name.trim()) { setFormError('Name is required'); return false; }
+    if (!form.email.trim()) { setFormError('Email is required'); return false; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { setFormError('Please enter a valid email address'); return false; }
+    if (modal === 'create' && !form.password) { setFormError('Password is required'); return false; }
+    if (form.password && form.password.length < 6) { setFormError('Password must be at least 6 characters'); return false; }
+    setFormError('');
+    return true;
+  };
+
   const handleCreate = async () => {
-    const r = await dispatch(createUser(form)); close();
-    createUser.fulfilled.match(r) ? showToast('User created successfully') : showToast('Failed to create user', 'error');
+    if (!validateForm()) return;
+    const r = await dispatch(createUser(form));
+    if (createUser.fulfilled.match(r)) { close(); showToast('User created successfully'); }
+    else setFormError(friendlyError((r.payload as string) || 'Failed to create user'));
   };
   const handleEdit = async () => {
+    if (!validateForm()) return;
     const payload: any = { name: form.name, email: form.email, role: form.role };
     if (form.password) payload.password = form.password;
-    const r = await dispatch(updateUser({ id: selected._id, payload })); close();
-    updateUser.fulfilled.match(r) ? showToast('User updated successfully') : showToast('Failed to update user', 'error');
+    const r = await dispatch(updateUser({ id: selected._id, payload }));
+    if (updateUser.fulfilled.match(r)) { close(); showToast('User updated successfully'); }
+    else setFormError(friendlyError((r.payload as string) || 'Failed to update user'));
   };
   const handleDelete = async () => {
     if (!deleteId) return;
-    const r = await dispatch(deleteUser(deleteId)); setDeleteId(null); setModal(null);
-    deleteUser.fulfilled.match(r) ? showToast('User deleted') : showToast('Failed to delete user', 'error');
+    const r = await dispatch(deleteUser(deleteId));
+    if (deleteUser.fulfilled.match(r)) { setDeleteId(null); setModal(null); showToast('User deleted'); }
+    else { setDeleteId(null); setModal(null); showToast((r.payload as string) || 'Failed to delete user', 'error'); }
   };
   const handleBulkDelete = async () => {
     await Promise.all([...checkedIds].map((id) => dispatch(deleteUser(id))));
@@ -159,6 +181,9 @@ export default function UsersPage() {
               <button onClick={close} className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500 cursor-pointer"><MdClose size={20} /></button>
             </div>
             <div className="flex-1 px-6 py-5 space-y-4 overflow-y-auto">
+              {formError && (
+                <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{formError}</p>
+              )}
               {tf('Name', 'name')}
               {tf('Email', 'email', 'email')}
               <div className="mb-4">

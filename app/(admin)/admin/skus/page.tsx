@@ -141,6 +141,9 @@ export default function SKUsPage() {
   const [createImagePreview, setCreateImagePreview] = useState<string|null>(null);
   const [search, setSearch]     = useState('');
   const [filterVendor, setFilterVendor] = useState('');
+  const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
+  const [showBulkAssign, setShowBulkAssign] = useState(false);
+  const [bulkVendor, setBulkVendor] = useState('');
   const [toast, setToast]       = useState<{message:string;type:'success'|'error'}|null>(null);
   const createFileRef = useRef<HTMLInputElement>(null);
 
@@ -177,12 +180,26 @@ export default function SKUsPage() {
     deleteSKU.fulfilled.match(r) ? showToast('SKU deleted') : showToast('Failed to delete','error');
   };
 
+  const handleBulkAssign = async () => {
+    if (!bulkVendor || checkedIds.size === 0) return;
+    const promises = [...checkedIds].map((id) => dispatch(updateSKU({ id, payload: { vendor: bulkVendor } })));
+    await Promise.all(promises);
+    showToast(`${checkedIds.size} SKU(s) assigned to vendor`);
+    setCheckedIds(new Set());
+    setShowBulkAssign(false);
+    setBulkVendor('');
+  };
+
   const filtered = skus.filter((s) => {
     const q = search.toLowerCase();
     const matchSearch = !q || s.name?.toLowerCase().includes(q) || s.code?.toLowerCase().includes(q);
     const matchVendor = !filterVendor || (s.vendor?._id || s.vendor) === filterVendor;
     return matchSearch && matchVendor;
   });
+
+  const allChecked = filtered.length > 0 && checkedIds.size === filtered.length;
+  const toggleAll = () => setCheckedIds(allChecked ? new Set() : new Set(filtered.map((s) => s._id)));
+  const toggleOne = (id: string) => setCheckedIds((prev) => { const s = new Set(prev); s.has(id) ? s.delete(id) : s.add(id); return s; });
 
   const tf = (label: string, key: keyof typeof emptyForm, type = 'text', placeholder = '') => (
     <div className="mb-4">
@@ -201,7 +218,13 @@ export default function SKUsPage() {
           <h1 className="text-2xl font-bold text-gray-900">SKUs</h1>
           <p className="text-sm text-gray-400 mt-0.5">{skus.length} products</p>
         </div>
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 items-center flex-wrap">
+          {checkedIds.size > 0 && (
+            <button onClick={() => setShowBulkAssign(true)}
+              className="flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-semibold rounded-lg cursor-pointer transition-colors">
+              Assign Vendor ({checkedIds.size})
+            </button>
+          )}
           <div className="relative">
             <MdSearch size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input type="text" placeholder="Search name or code…" value={search} onChange={(e) => setSearch(e.target.value)}
@@ -225,6 +248,9 @@ export default function SKUsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="px-3 py-3 w-10">
+                  <input type="checkbox" checked={allChecked} onChange={toggleAll} className="w-4 h-4 cursor-pointer" />
+                </th>
                 {['Image','Code','Name','Vendor','Price','Stock','Rating','Status','Actions'].map((h) => (
                   <th key={h} className="px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap">{h}</th>
                 ))}
@@ -233,7 +259,7 @@ export default function SKUsPage() {
             <tbody className="divide-y divide-gray-100">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="py-16 text-center">
+                  <td colSpan={10} className="py-16 text-center">
                     <MdOutlineInbox size={36} className="mx-auto text-gray-200 mb-2" />
                     <p className="text-gray-400 text-sm">No SKUs found</p>
                   </td>
@@ -242,7 +268,11 @@ export default function SKUsPage() {
                 const cacheBust = s._cacheBust || '';
                 const imgSrc = s.image ? `${s.image.startsWith('http') ? s.image : `${API}${s.image}`}?v=${cacheBust}` : null;
                 return (
-                  <tr key={s._id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={s._id} className={`hover:bg-gray-50 transition-colors ${checkedIds.has(s._id) ? 'bg-purple-50' : ''}`}>
+                    {/* Checkbox */}
+                    <td className="px-3 py-2.5">
+                      <input type="checkbox" checked={checkedIds.has(s._id)} onChange={() => toggleOne(s._id)} className="w-4 h-4 cursor-pointer" />
+                    </td>
                     {/* Image */}
                     <td className="px-3 py-2.5">
                       <div className="w-10 h-10 rounded-lg border border-gray-100 bg-gray-50 overflow-hidden flex items-center justify-center flex-shrink-0">
@@ -308,6 +338,27 @@ export default function SKUsPage() {
       {modal === 'delete' && (
         <ConfirmModal title="Delete SKU" message="Are you sure you want to delete this SKU?"
           confirmLabel="Delete" variant="danger" onConfirm={handleDelete} onCancel={() => { setModal(null); setDeleteId(null); }} />
+      )}
+
+      {/* ── Bulk Assign Vendor Modal ── */}
+      {showBulkAssign && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-1">Assign Vendor</h3>
+            <p className="text-sm text-gray-500 mb-4">Assign {checkedIds.size} selected SKU(s) to a vendor</p>
+            <select value={bulkVendor} onChange={(e) => setBulkVendor(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4">
+              <option value="">— Select Vendor —</option>
+              {vendors.map((v) => <option key={v._id} value={v._id}>{v.name}</option>)}
+            </select>
+            <div className="flex gap-3">
+              <button onClick={() => { setShowBulkAssign(false); setBulkVendor(''); }}
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg cursor-pointer">Cancel</button>
+              <button onClick={handleBulkAssign} disabled={!bulkVendor}
+                className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-purple-600 hover:bg-purple-700 rounded-lg cursor-pointer disabled:opacity-40 transition-colors">Assign</button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* ── Create / Edit Drawer ── */}

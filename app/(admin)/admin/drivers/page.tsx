@@ -21,6 +21,7 @@ export default function DriversPage() {
   const [selected, setSelected] = useState<any>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [formError, setFormError] = useState('');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const showToast = (message: string, type: 'success' | 'error' = 'success') => setToast({ message, type });
@@ -28,26 +29,49 @@ export default function DriversPage() {
 
   useEffect(() => { dispatch(fetchDrivers()); }, [dispatch]);
 
-  const openCreate = () => { setForm(emptyForm); setModal('create'); };
+  const openCreate = () => { setForm(emptyForm); setFormError(''); setModal('create'); };
   const openEdit = (d: any) => {
     setSelected(d);
     setForm({ name: d.user?.name || '', email: d.user?.email || '', password: '', licenseNumber: d.licenseNumber || '', vehicle: d.vehicle || '', isAvailable: d.isAvailable });
+    setFormError('');
     setModal('edit');
   };
   const close = () => { setModal(null); setSelected(null); };
 
+  const friendlyError = (msg: string) => {
+    if (msg.includes('Access denied')) return 'Session expired. Please re-login as admin.';
+    return msg;
+  };
+
+  const validateForm = () => {
+    if (modal === 'create') {
+      if (!form.name.trim()) { setFormError('Name is required'); return false; }
+      if (!form.email.trim()) { setFormError('Email is required'); return false; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { setFormError('Please enter a valid email address'); return false; }
+      if (!form.password) { setFormError('Password is required'); return false; }
+      if (form.password.length < 6) { setFormError('Password must be at least 6 characters'); return false; }
+    }
+    setFormError('');
+    return true;
+  };
+
   const handleCreate = async () => {
-    const r = await dispatch(createDriver(form)); close();
-    createDriver.fulfilled.match(r) ? showToast('Driver created successfully') : showToast('Failed to create driver', 'error');
+    if (!validateForm()) return;
+    const r = await dispatch(createDriver(form));
+    if (createDriver.fulfilled.match(r)) { close(); showToast('Driver created successfully'); }
+    else setFormError(friendlyError((r.payload as string) || 'Failed to create driver'));
   };
   const handleEdit = async () => {
-    const r = await dispatch(updateDriver({ id: selected._id, payload: form })); close();
-    updateDriver.fulfilled.match(r) ? showToast('Driver updated successfully') : showToast('Failed to update driver', 'error');
+    setFormError('');
+    const r = await dispatch(updateDriver({ id: selected._id, payload: form }));
+    if (updateDriver.fulfilled.match(r)) { close(); showToast('Driver updated successfully'); }
+    else setFormError(friendlyError((r.payload as string) || 'Failed to update driver'));
   };
   const handleDelete = async () => {
     if (!deleteId) return;
-    const r = await dispatch(deleteDriver(deleteId)); setDeleteId(null); setModal(null);
-    deleteDriver.fulfilled.match(r) ? showToast('Driver deleted') : showToast('Failed to delete driver', 'error');
+    const r = await dispatch(deleteDriver(deleteId));
+    if (deleteDriver.fulfilled.match(r)) { setDeleteId(null); setModal(null); showToast('Driver deleted'); }
+    else { setDeleteId(null); setModal(null); showToast((r.payload as string) || 'Failed to delete driver', 'error'); }
   };
 
   const tf = (label: string, key: 'licenseNumber' | 'vehicle') => {
@@ -118,6 +142,9 @@ export default function DriversPage() {
               <button onClick={close} className="p-1.5 rounded-md hover:bg-gray-100 text-gray-500 cursor-pointer"><MdClose size={20} /></button>
             </div>
             <div className="flex-1 px-6 py-5 space-y-4 overflow-y-auto">
+              {formError && (
+                <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{formError}</p>
+              )}
               {modal === 'create' && (
                 <>
                   <div>
