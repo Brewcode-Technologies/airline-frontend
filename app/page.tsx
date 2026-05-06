@@ -26,11 +26,11 @@ export default function Home() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {portals.map((p) => (
-            <Link key={p.name} href={p.href}
-              className={`${p.color} rounded-2xl p-5 text-white transition-colors block flex items-center gap-3`}>
+            <a key={p.name} href={p.href} target="_blank" rel="noopener noreferrer"
+              className={`${p.color} rounded-2xl p-5 text-white transition-colors flex items-center gap-3`}>
               {icons[p.icon as keyof typeof icons]}
               <span className="text-lg font-bold">{p.name} Portal</span>
-            </Link>
+            </a>
           ))}
         </div>
       </div>
