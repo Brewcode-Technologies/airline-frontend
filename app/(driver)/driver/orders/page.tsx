@@ -94,23 +94,24 @@ export default function DriverOrdersPage() {
 
   // Filter by driver._id (the Driver document id, not the user id)
   const myOrders = orders.filter((o) =>
-    ['assigned', 'picked', 'enroute'].includes(o.status) &&
     myDriverId &&
     (o.driver?._id === myDriverId || String(o.driver?._id) === myDriverId || o.driver === myDriverId)
   ).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  const activeOrders = myOrders.filter((o) => ['assigned', 'picked', 'enroute'].includes(o.status));
 
   const isNew = (o: any) => Date.now() - new Date(o.createdAt).getTime() < 30 * 60 * 1000;
 
   return (
     <div>
-      <PageHeader title="My Orders" subtitle={`${myOrders.length} active`} />
+      <PageHeader title="My Orders" subtitle={`${activeOrders.length} active · ${myOrders.length} total`} />
 
       {(loading || driversLoading) ? <Spinner label="Loading orders…" /> : (
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                {['Order #', 'Flight', 'Gate', 'Passengers', 'Status', 'SLA', 'Actions'].map((h) => (
+                {['Order #', 'Flight', 'Gate', 'Passengers', 'Vendor', 'Status', 'SLA Deadline', 'Actions'].map((h) => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">{h}</th>
                 ))}
               </tr>
@@ -125,9 +126,12 @@ export default function DriverOrdersPage() {
                   <td className="px-4 py-3 text-gray-600">{o.flightNumber || '—'}</td>
                   <td className="px-4 py-3 text-gray-600">{o.gate || '—'}</td>
                   <td className="px-4 py-3 text-gray-600">{o.passengerCount ?? '—'}</td>
+                  <td className="px-4 py-3 text-gray-600">{o.vendor?.name || '—'}</td>
                   <td className="px-4 py-3"><Badge label={o.status} /></td>
                   <td className="px-4 py-3">
-                    {o.slaDeadline ? <SlaCountdown deadline={o.slaDeadline} /> : <span className="text-gray-400 text-xs">—</span>}
+                    {o.slaDeadline
+                      ? <span className="text-xs text-gray-600">{new Date(o.slaDeadline).toLocaleString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
+                      : <span className="text-gray-400 text-xs">—</span>}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2 flex-wrap">
@@ -139,7 +143,7 @@ export default function DriverOrdersPage() {
                 </tr>
               ))}
               {myOrders.length === 0 && (
-                <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">No active orders</td></tr>
+                <tr><td colSpan={8} className="px-4 py-8 text-center text-gray-400">No orders assigned to you</td></tr>
               )}
             </tbody>
           </table>

@@ -42,8 +42,11 @@ export default function CreateOrdersPage() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (vendors.length && !selectedVendor) setSelectedVendor(vendors[0]._id);
-  }, [vendors]);
+    if (vendors.length && !selectedVendor) {
+      const vendorWithProducts = vendors.find((v: any) => skus.some((s: any) => s.isActive && (s.vendor?._id || s.vendor) === v._id));
+      setSelectedVendor(vendorWithProducts?._id || vendors[0]._id);
+    }
+  }, [vendors, skus]);
 
   const vendorProducts = useMemo(() => {
     let list = skus.filter((s: any) => s.isActive);
@@ -114,11 +117,7 @@ export default function CreateOrdersPage() {
       }
     } else {
       const errMsg = (result.payload as string) || 'Failed to place order';
-      if (errMsg.includes('Access denied')) {
-        setToast({ message: 'Session expired. Please re-login as airline.', type: 'error' });
-      } else {
-        setToast({ message: errMsg, type: 'error' });
-      }
+      setToast({ message: errMsg, type: 'error' });
     }
   };
 
@@ -145,7 +144,11 @@ export default function CreateOrdersPage() {
           <MdStore size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <select value={selectedVendor} onChange={(e) => { setSelectedVendor(e.target.value); setSelectedItems({}); setSelectedCategory('All'); }}
             className="w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2.5 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer">
-            {vendors.map((v: any) => <option key={v._id} value={v._id}>{v.name}</option>)}
+            <option value="">All Vendors ({vendors.length})</option>
+            {vendors.map((v: any) => {
+              const count = skus.filter((s: any) => s.isActive && (s.vendor?._id || s.vendor) === v._id).length;
+              return <option key={v._id} value={v._id}>{v.name}{count > 0 ? ` (${count} products)` : ''}</option>;
+            })}
           </select>
         </div>
         <div className="relative flex-1">

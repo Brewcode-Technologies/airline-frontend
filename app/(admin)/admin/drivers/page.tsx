@@ -38,10 +38,7 @@ export default function DriversPage() {
   };
   const close = () => { setModal(null); setSelected(null); };
 
-  const friendlyError = (msg: string) => {
-    if (msg.includes('Access denied')) return 'Session expired. Please re-login as admin.';
-    return msg;
-  };
+  const friendlyError = (msg: string) => msg;
 
   const validateForm = () => {
     if (modal === 'create') {

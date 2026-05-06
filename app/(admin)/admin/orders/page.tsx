@@ -310,15 +310,15 @@ export default function AdminOrdersPage() {
             <div className="flex-1 px-6 py-5 space-y-4 overflow-y-auto">
               <p className="text-sm text-gray-500">Order: <span className="font-semibold text-gray-800">{selected?.orderNumber}</span></p>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Available Driver</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Select Driver</label>
                 <select value={assignDriverId} onChange={(e) => setAssignDriverId(e.target.value)} className={inputCls}>
                   <option value="">— Select Driver —</option>
-                  {drivers.filter((d) => d.isAvailable).map((d) => (
+                  {drivers.filter((d) => d.isAvailable && d.vehicle).map((d) => (
                     <option key={d._id} value={d._id}>{d.user?.name} — {d.vehicle}</option>
                   ))}
                 </select>
-                {drivers.filter((d) => d.isAvailable).length === 0 && (
-                  <p className="text-xs text-amber-600 mt-1.5 bg-amber-50 px-3 py-2 rounded-lg">No available drivers right now.</p>
+                {drivers.filter((d) => d.isAvailable && d.vehicle).length === 0 && (
+                  <p className="text-xs text-amber-600 mt-1.5 bg-amber-50 px-3 py-2 rounded-lg">No active drivers with vehicles available.</p>
                 )}
               </div>
             </div>
