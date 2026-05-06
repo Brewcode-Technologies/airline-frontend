@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { MdEmail, MdLocalShipping } from 'react-icons/md';
+import { MdEmail, MdLock, MdLocalShipping } from 'react-icons/md';
 import PasswordInput from '@/components/ui/PasswordInput';
 import api from '@/services/api';
 

@@ -37,7 +37,7 @@ export default function VendorsPage() {
   const openCreate = () => { setForm(emptyForm); setModal('create'); };
   const openEdit = (v: any) => {
     setSelected(v);
-    setForm({ name: v.name, contact: v.contact || '', email: v.email || '', address: v.address || '' });
+    setForm({ name: v.name, contact: v.contact || '', email: v.email || '', address: v.address || '', password: '' });
     setModal('edit');
   };
   const close = () => { setModal(null); setSelected(null); };
