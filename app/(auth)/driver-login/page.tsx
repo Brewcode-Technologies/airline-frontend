@@ -111,7 +111,7 @@ function DriverLoginContent() {
 
               <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-xs text-gray-500">
                 <p className="font-semibold text-gray-600 mb-1">Demo Credentials</p>
-                <p>Email: <span className="font-mono text-gray-800 select-all">ravi@driver.com</span></p>
+                <p>Email: <span className="font-mono text-gray-800 select-all">james@driver.com</span></p>
                 <p>Password: <span className="font-mono text-gray-800 select-all">password123</span></p>
               </div>
 
