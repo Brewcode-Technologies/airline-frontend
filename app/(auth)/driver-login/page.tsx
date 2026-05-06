@@ -110,11 +110,9 @@ function DriverLoginContent() {
               </button>
 
               <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-xs text-gray-500">
-                <p className="font-semibold text-gray-600 mb-2">Quick Login</p>
-                <button type="button" onClick={() => quickLogin('james@driver.com', 'password123')}
-                  className="w-full px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-medium rounded-md cursor-pointer transition-colors">
-                  Login as James Wilson (Default Driver)
-                </button>
+                <p className="font-semibold text-gray-600 mb-1">Demo Credentials</p>
+                <p>Email: <span className="font-mono text-gray-800 select-all">ravi@driver.com</span></p>
+                <p>Password: <span className="font-mono text-gray-800 select-all">password123</span></p>
               </div>
 
               <div className="flex justify-end text-sm">
