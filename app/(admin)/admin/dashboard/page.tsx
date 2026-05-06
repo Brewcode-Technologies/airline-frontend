@@ -1,7 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { login } from '@/store/slices/authSlice';
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer,
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -10,6 +12,7 @@ import {
   MdShoppingCart, MdCheckCircle, MdPending, MdPeople,
   MdBusiness, MdInventory, MdLocationOn, MdBarChart,
   MdManageAccounts, MdPerson, MdArrowForward, MdSpeed,
+  MdFlight, MdLocalShipping, MdStore,
 } from 'react-icons/md';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchSummary, fetchOrdersByStatus, fetchSLA } from '@/store/slices/analyticsSlice';
@@ -37,6 +40,8 @@ const sections = [
 
 export default function AdminDashboard() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
+  const [switching, setSwitching] = useState('');
   const { summary, ordersByStatus, sla, loading: analyticsLoading } = useAppSelector((s) => s.analytics);
   const { list: orders,  loading: ordersLoading  } = useAppSelector((s) => s.orders);
   const { list: drivers, loading: driversLoading } = useAppSelector((s) => s.drivers);
@@ -67,12 +72,40 @@ export default function AdminDashboard() {
 
   if (isLoading) return <Spinner fullPage label="Loading dashboard…" />;
 
+  const switchTo = async (email: string, password: string, redirect: string, role: string) => {
+    setSwitching(role);
+    const result = await dispatch(login({ email, password }));
+    if (login.fulfilled.match(result)) {
+      window.open(redirect, '_blank');
+    }
+    setSwitching('');
+  };
+
   return (
     <div className="space-y-6">
-      {/* Page title */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Complete overview of logistics operations</p>
+      {/* Page title + Quick Switch */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
+          <p className="text-sm text-gray-500 mt-0.5">Complete overview of logistics operations</p>
+        </div>
+        <div className="flex gap-3">
+          <button onClick={() => switchTo('manager@airline.com', 'password123', '/airline/dashboard', 'airline')}
+            disabled={!!switching}
+            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl cursor-pointer transition-colors disabled:opacity-50 shadow-sm">
+            <MdFlight size={18} /> {switching === 'airline' ? 'Switching…' : 'Airline Portal'}
+          </button>
+          <button onClick={() => switchTo('ravi@driver.com', 'password123', '/driver/orders', 'driver')}
+            disabled={!!switching}
+            className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-xl cursor-pointer transition-colors disabled:opacity-50 shadow-sm">
+            <MdLocalShipping size={18} /> {switching === 'driver' ? 'Switching…' : 'Driver Portal'}
+          </button>
+          <button onClick={() => switchTo('vendor1@indigo.com', 'password123', '/vendor/dashboard', 'vendor')}
+            disabled={!!switching}
+            className="flex items-center gap-2 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold rounded-xl cursor-pointer transition-colors disabled:opacity-50 shadow-sm">
+            <MdStore size={18} /> {switching === 'vendor' ? 'Switching…' : 'Vendor Portal'}
+          </button>
+        </div>
       </div>
 
       {/* Stat cards */}

@@ -40,6 +40,20 @@ function DriverLoginContent() {
     }
   };
 
+  const quickLogin = async (email: string, password: string) => {
+    setRoleError('');
+    setFailed(false);
+    const result = await dispatch(login({ email, password }));
+    if (login.fulfilled.match(result)) {
+      if (result.payload.user.role !== 'driver') {
+        localStorage.clear();
+        setRoleError('Access denied. This portal is for drivers only.');
+        return;
+      }
+      router.push('/driver/orders');
+    }
+  };
+
   const inputCls = 'w-full border border-gray-300 rounded-lg pl-9 pr-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500';
 
   return (
@@ -67,7 +81,7 @@ function DriverLoginContent() {
                 <div className="relative">
                   <MdEmail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    placeholder="ravi@driver.com" className={inputCls} />
+                    placeholder="james@driver.com" className={inputCls} />
                 </div>
               </div>
               <div>
@@ -94,6 +108,14 @@ function DriverLoginContent() {
                 className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2.5 rounded-lg text-sm transition-colors disabled:opacity-50 cursor-pointer">
                 {loading ? 'Signing in…' : 'Sign in'}
               </button>
+
+              <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-xs text-gray-500">
+                <p className="font-semibold text-gray-600 mb-2">Quick Login</p>
+                <button type="button" onClick={() => quickLogin('james@driver.com', 'password123')}
+                  className="w-full px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-medium rounded-md cursor-pointer transition-colors">
+                  Login as James Wilson (Default Driver)
+                </button>
+              </div>
 
               <div className="flex justify-end text-sm">
                 <Link href="/driver-change-password" className="text-orange-500 hover:underline font-medium">

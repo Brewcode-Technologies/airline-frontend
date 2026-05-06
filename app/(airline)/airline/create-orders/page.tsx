@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchOrders, createOrder } from '@/store/slices/ordersSlice';
 import { fetchVendors } from '@/store/slices/vendorsSlice';
@@ -17,6 +18,7 @@ const inputCls = 'w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm t
 
 export default function CreateOrdersPage() {
   const dispatch = useAppDispatch();
+  const router = useRouter();
   const { list: vendors } = useAppSelector((s) => s.vendors);
   const { list: skus, loading: skusLoading } = useAppSelector((s) => s.skus);
   const { list: orders } = useAppSelector((s) => s.orders);
@@ -104,15 +106,19 @@ export default function CreateOrdersPage() {
     };
     const result = await dispatch(createOrder(payload));
     if (createOrder.fulfilled.match(result)) {
-      setPlacedOrder(orderNum);
-      setShowDrawer(false);
-      setShowConfirm(true);
-      setSelectedItems({});
-      setForm({ flightNumber: '', gate: '', passengerCount: '', scheduledAt: '' });
-      dispatch(fetchOrders());
+      const orderId = result.payload._id;
+      if (orderId) {
+        router.push(`/airline/billing?order=${encodeURIComponent(orderNum)}&id=${orderId}`);
+      } else {
+        setToast({ message: 'Order created but could not navigate to billing', type: 'error' });
+      }
     } else {
       const errMsg = (result.payload as string) || 'Failed to place order';
-      setToast({ message: errMsg, type: 'error' });
+      if (errMsg.includes('Access denied')) {
+        setToast({ message: 'Session expired. Please re-login as airline.', type: 'error' });
+      } else {
+        setToast({ message: errMsg, type: 'error' });
+      }
     }
   };
 
@@ -275,9 +281,15 @@ export default function CreateOrdersPage() {
                     placeholder="180" className={inputCls} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Scheduled At *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Scheduled At * <span className="text-xs text-gray-400">(US Eastern)</span></label>
                   <input type="datetime-local" value={form.scheduledAt} onChange={(e) => setForm({ ...form, scheduledAt: e.target.value })}
+                    min={new Date(new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })).toISOString().slice(0, 16)}
                     className={inputCls} />
+                  {form.scheduledAt && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      {new Date(form.scheduledAt).toLocaleString('en-US', { timeZone: 'America/New_York', month: '2-digit', day: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })} ET
+                    </p>
+                  )}
                 </div>
               </div>
 

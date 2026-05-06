@@ -38,6 +38,15 @@ function AirlineLoginContent() {
     }
   };
 
+  const quickLogin = async (email: string, password: string, role: string) => {
+    setRoleError('');
+    const result = await dispatch(login({ email, password }));
+    if (login.fulfilled.match(result)) {
+      const redirectMap: Record<string, string> = { admin: '/admin/dashboard', airline: '/airline/dashboard', driver: '/driver/orders', vendor: '/vendor/dashboard' };
+      router.push(redirectMap[result.payload.user.role] || '/airline/dashboard');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
@@ -93,9 +102,21 @@ function AirlineLoginContent() {
                 </button>
 
                 <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-xs text-gray-500">
-                  <p className="font-semibold text-gray-600 mb-1">Demo Credentials</p>
-                  <p>Email: <span className="font-mono text-gray-800 select-all">manager@airline.com</span></p>
-                  <p>Password: <span className="font-mono text-gray-800 select-all">password123</span></p>
+                  <p className="font-semibold text-gray-600 mb-2">Quick Login</p>
+                  <div className="flex gap-2">
+                    <button type="button" onClick={() => quickLogin('admin@airline.com', 'password123', 'admin')}
+                      className="flex-1 px-2 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded-md cursor-pointer transition-colors">
+                      Admin
+                    </button>
+                    <button type="button" onClick={() => quickLogin('james@driver.com', 'password123', 'driver')}
+                      className="flex-1 px-2 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded-md cursor-pointer transition-colors">
+                      Driver
+                    </button>
+                    <button type="button" onClick={() => quickLogin('vendor1@indigo.com', 'password123', 'vendor')}
+                      className="flex-1 px-2 py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-medium rounded-md cursor-pointer transition-colors">
+                      Vendor
+                    </button>
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-end text-sm text-gray-500">
