@@ -7,7 +7,7 @@ import { fetchMe } from '@/store/slices/authSlice';
 import Spinner from '@/components/ui/Spinner';
 
 interface RouteGuardProps {
-  allowedRole: 'admin' | 'airline' | 'driver' | 'vendor';
+  allowedRole: 'admin' | 'airline' | 'driver' | 'vendor' | 'customer';
   loginPath: string;
   children: React.ReactNode;
 }

@@ -22,6 +22,7 @@ api.interceptors.response.use(
           role === 'airline' ? '/airline-login' :
           role === 'driver'  ? '/driver-login'  :
           role === 'vendor'  ? '/vendor-login'  :
+          role === 'customer' ? '/customer-login' :
           '/admin-login';
         window.location.replace(redirect);
       }

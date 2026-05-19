@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { MdMenu, MdClose, MdDashboard, MdShoppingCart, MdPeople, MdBusiness, MdInventory, MdLocationOn, MdBarChart, MdManageAccounts, MdPerson, MdNavigation, MdCameraAlt, MdHistory, MdShoppingBag } from 'react-icons/md';
+import { MdMenu, MdClose, MdDashboard, MdShoppingCart, MdPeople, MdBusiness, MdInventory, MdLocationOn, MdBarChart, MdManageAccounts, MdPerson, MdNavigation, MdCameraAlt, MdHistory, MdShoppingBag, MdStorefront, MdStar } from 'react-icons/md';
 
 const PORTALS = {
   admin: {
@@ -54,6 +54,18 @@ const PORTALS = {
       { href: '/vendor/stock',     label: 'Products',   icon: MdInventory },
       { href: '/vendor/tracking',  label: 'Tracking',   icon: MdLocationOn },
       { href: '/vendor/profile',   label: 'Profile',    icon: MdPerson },
+    ],
+  },
+  customer: {
+    label:       'Customer Portal',
+    activeColor: 'bg-purple-600',
+    links: [
+      { href: '/customer/dashboard', label: 'Dashboard',  icon: MdDashboard },
+      { href: '/customer/catalog',   label: 'Catalog',    icon: MdStorefront },
+      { href: '/customer/cart',      label: 'Cart',       icon: MdShoppingCart },
+      { href: '/customer/orders',    label: 'My Orders',  icon: MdHistory },
+      { href: '/customer/tracking',  label: 'Track Order', icon: MdLocationOn },
+      { href: '/customer/profile',   label: 'Profile',    icon: MdPerson },
     ],
   },
 };

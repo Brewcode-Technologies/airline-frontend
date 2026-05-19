@@ -1,11 +1,12 @@
 import Link from 'next/link';
-import { MdAdminPanelSettings, MdFlight, MdLocalShipping, MdStore } from 'react-icons/md';
+import { MdAdminPanelSettings, MdFlight, MdLocalShipping, MdStore, MdPerson } from 'react-icons/md';
 
 const portals = [
   { name: 'Admin', href: '/admin-login', icon: 'admin', color: 'bg-purple-600 hover:bg-purple-700' },
   { name: 'Airline', href: '/airline-login', icon: 'airline', color: 'bg-blue-600 hover:bg-blue-700' },
   { name: 'Driver', href: '/driver-login', icon: 'driver', color: 'bg-emerald-600 hover:bg-emerald-700' },
   { name: 'Vendor', href: '/vendor-login', icon: 'vendor', color: 'bg-orange-500 hover:bg-orange-600' },
+  { name: 'Customer', href: '/customer-login', icon: 'customer', color: 'bg-pink-600 hover:bg-pink-700' },
 ];
 
 const icons = {
@@ -13,6 +14,7 @@ const icons = {
   airline: <MdFlight size={28} className="text-white" />,
   driver: <MdLocalShipping size={28} className="text-white" />,
   vendor: <MdStore size={28} className="text-white" />,
+  customer: <MdPerson size={28} className="text-white" />,
 };
 
 export default function Home() {
