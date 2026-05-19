@@ -78,23 +78,23 @@ export default function AirlineProfilePage() {
           <p className="text-xs text-gray-400 mb-4">These will be pre-filled when you create a new bundle order.</p>
           <div className="grid grid-cols-2 gap-4 mb-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Airport</label>
+              <label className="block text-sm font-semibold text-gray-800 mb-1.5">Airport</label>
               <input
                 type="text"
                 value={airport}
                 onChange={(e) => setAirport(e.target.value)}
                 placeholder="e.g. DEL, BOM, JFK, HYD"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border-2 border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Gate</label>
+              <label className="block text-sm font-semibold text-gray-800 mb-1.5">Gate</label>
               <input
                 type="text"
                 value={gate}
                 onChange={(e) => setGate(e.target.value)}
                 placeholder="e.g. Gate B4, Gate 12A"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border-2 border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>

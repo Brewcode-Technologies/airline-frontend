@@ -52,8 +52,10 @@ export default function AirlineDashboard() {
 
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Overview of airline operations</p>
+        <h1 className="text-2xl font-bold text-gray-800">
+          {new Date().getHours() < 12 ? 'Good morning' : new Date().getHours() < 17 ? 'Good afternoon' : 'Good evening'} 👋
+        </h1>
+        <p className="text-sm text-gray-500 mt-0.5">Here&apos;s your airline operations overview</p>
       </div>
 
       {/* Stat Cards — clickable */}
@@ -170,21 +172,34 @@ export default function AirlineDashboard() {
             <h3 className="font-semibold text-gray-800">SLA Performance</h3>
           </div>
           {sla ? (
-            <div className="space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Total Orders</span>
-                <span className="font-semibold text-gray-800">{sla.total}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Delivered</span>
-                <span className="font-semibold text-green-600">{sla.delivered}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-500">SLA Rate</span>
-                <span className="font-semibold text-blue-600">{sla.slaRate}</span>
-              </div>
-              <div className="mt-2 w-full bg-gray-100 rounded-full h-2.5">
-                <div className="bg-orange-500 h-2.5 rounded-full transition-all" style={{ width: sla.slaRate }} />
+            <div className="space-y-4">
+              <div className="flex items-center gap-5">
+                {/* Circular Progress */}
+                <div className="relative w-24 h-24 shrink-0">
+                  <svg className="w-24 h-24 -rotate-90" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="#f3f4f6" strokeWidth="10" />
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="#f97316" strokeWidth="10"
+                      strokeDasharray={`${parseFloat(sla.slaRate) * 2.64} 264`}
+                      strokeLinecap="round" />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-lg font-bold text-gray-900">{sla.slaRate}</span>
+                  </div>
+                </div>
+                <div className="space-y-2 flex-1">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Total Orders</span>
+                    <span className="font-semibold text-gray-800">{sla.total}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Delivered</span>
+                    <span className="font-semibold text-green-600">{sla.delivered}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">SLA Rate</span>
+                    <span className="font-semibold text-orange-600">{sla.slaRate}</span>
+                  </div>
+                </div>
               </div>
             </div>
           ) : (

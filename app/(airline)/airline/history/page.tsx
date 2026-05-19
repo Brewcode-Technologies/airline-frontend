@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { fetchOrders } from '@/store/slices/ordersSlice';
 import PageHeader from '@/components/ui/PageHeader';
@@ -10,6 +10,7 @@ import Spinner from '@/components/ui/Spinner';
 export default function HistoryPage() {
   const dispatch = useAppDispatch();
   const { list: orders, loading } = useAppSelector((s) => s.orders);
+  const [statusFilter, setStatusFilter] = useState('');
 
   useEffect(() => { dispatch(fetchOrders()); }, [dispatch]);
 
@@ -18,9 +19,32 @@ export default function HistoryPage() {
     !o.createdBy || o.createdBy === userId || o.createdBy?._id === userId
   );
 
+  const filteredOrders = statusFilter
+    ? myOrders.filter((o) => o.status === statusFilter)
+    : myOrders;
+
+  const statuses = ['', 'pending', 'assigned', 'picked', 'enroute', 'delivered', 'cancelled'];
+
   return (
     <div>
-      <PageHeader title="Order History" subtitle={`${myOrders.length} total records`} />
+      <PageHeader title="Order History" subtitle={`${filteredOrders.length} of ${myOrders.length} records`} />
+
+      {/* Status Filter */}
+      <div className="flex flex-wrap gap-2 mb-5">
+        {statuses.map((s) => (
+          <button
+            key={s}
+            onClick={() => setStatusFilter(s)}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
+              statusFilter === s
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            {s || 'All'}
+          </button>
+        ))}
+      </div>
 
       {loading ? <Spinner label="Loading history…" /> : (
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
@@ -33,7 +57,7 @@ export default function HistoryPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {myOrders.map((o) => (
+              {filteredOrders.map((o) => (
                 <tr key={o._id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 font-medium text-gray-800">{o.orderNumber}</td>
                   <td className="px-4 py-3 text-gray-600">{o.flightNumber || '—'}</td>
@@ -44,8 +68,8 @@ export default function HistoryPage() {
                   <td className="px-4 py-3 text-gray-500">{new Date(o.createdAt).toLocaleDateString()}</td>
                 </tr>
               ))}
-              {myOrders.length === 0 && (
-                <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">No history found</td></tr>
+              {filteredOrders.length === 0 && (
+                <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-400">No orders found</td></tr>
               )}
             </tbody>
           </table>

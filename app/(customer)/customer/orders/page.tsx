@@ -4,11 +4,13 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { MdFilterList, MdRefresh } from 'react-icons/md';
 import api from '@/services/api';
+import Toast from '@/components/ui/Toast';
 
 export default function CustomerOrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
   useEffect(() => {
     loadOrders();
@@ -28,7 +30,7 @@ export default function CustomerOrdersPage() {
   const reorder = async (orderId: string) => {
     try {
       await api.post(`/customer/orders/${orderId}/reorder`);
-      alert('Items added to cart!');
+      setToast({ message: 'Items added to cart!', type: 'success' });
     } catch (e) { /* ignore */ }
   };
 
@@ -119,6 +121,9 @@ export default function CustomerOrdersPage() {
           ))}
         </div>
       )}
+
+      {/* Toast */}
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );
 }

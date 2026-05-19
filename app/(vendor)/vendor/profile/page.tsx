@@ -7,7 +7,7 @@ import Spinner from '@/components/ui/Spinner';
 import Toast from '@/components/ui/Toast';
 import { MdBusiness, MdEdit, MdSave, MdClose } from 'react-icons/md';
 
-const inputCls = 'w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500';
+const inputCls = 'w-full border-2 border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500';
 
 export default function VendorProfilePage() {
   const [vendor, setVendor]   = useState<any>(null);

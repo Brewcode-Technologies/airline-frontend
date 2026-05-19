@@ -22,6 +22,7 @@ export default function VendorOrdersPage() {
   const [drivers, setDrivers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch]   = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const [assignOrder, setAssignOrder] = useState<any>(null);
   const [driverId, setDriverId]       = useState('');
   const [assigning, setAssigning]     = useState(false);
@@ -51,7 +52,9 @@ export default function VendorOrdersPage() {
 
   const filtered = orders.filter((o) => {
     const q = search.toLowerCase();
-    return !q || o.orderNumber?.toLowerCase().includes(q) || o.flightNumber?.toLowerCase().includes(q) || o.gate?.toLowerCase().includes(q);
+    const matchSearch = !q || o.orderNumber?.toLowerCase().includes(q) || o.flightNumber?.toLowerCase().includes(q) || o.gate?.toLowerCase().includes(q);
+    const matchStatus = !statusFilter || o.status === statusFilter;
+    return matchSearch && matchStatus;
   }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const isNew = (o: any) => Date.now() - new Date(o.createdAt).getTime() < 30 * 60 * 1000;
@@ -68,6 +71,23 @@ export default function VendorOrdersPage() {
         <input type="text" placeholder="Search order #, flight, gate…" value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full border border-gray-200 rounded-lg pl-8 pr-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+      </div>
+
+      {/* Status Filter */}
+      <div className="flex flex-wrap gap-2 mb-5">
+        {['', 'pending', 'assigned', 'picked', 'enroute', 'delivered', 'cancelled'].map((s) => (
+          <button
+            key={s}
+            onClick={() => setStatusFilter(s)}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
+              statusFilter === s
+                ? 'bg-emerald-600 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            {s || 'All'}
+          </button>
+        ))}
       </div>
 
       {loading ? <Spinner label="Loading orders…" /> : (

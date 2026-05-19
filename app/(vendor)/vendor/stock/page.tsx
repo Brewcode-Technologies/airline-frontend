@@ -11,7 +11,7 @@ import {
 } from 'react-icons/md';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
-const inputCls = 'w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500';
+const inputCls = 'w-full border-2 border-gray-300 rounded-lg px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500';
 const CATEGORIES = ['All', 'Meals', 'Beverages', 'Snacks', 'Cargo', 'Fuel', 'Supplies', 'Comfort', 'Safety', 'Hygiene', 'Electronics'];
 
 function Stars({ rating }: { rating: number }) {

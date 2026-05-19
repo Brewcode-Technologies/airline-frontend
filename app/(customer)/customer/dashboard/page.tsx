@@ -2,30 +2,65 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { MdStorefront, MdShoppingCart, MdHistory, MdLocationOn, MdArrowForward } from 'react-icons/md';
+import { MdStorefront, MdShoppingCart, MdHistory, MdLocationOn, MdArrowForward, MdTimer } from 'react-icons/md';
 import api from '@/services/api';
 
 export default function CustomerDashboard() {
   const [name, setName] = useState('');
   const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [activeOrder, setActiveOrder] = useState<any>(null);
   const [stats, setStats] = useState({ total: 0, active: 0, delivered: 0 });
+  const [slaText, setSlaText] = useState('');
 
   useEffect(() => {
     setName(localStorage.getItem('name') || 'Customer');
     loadData();
   }, []);
 
+  // SLA countdown timer
+  useEffect(() => {
+    if (!activeOrder?.slaDeadline) return;
+    const tick = () => {
+      const remaining = new Date(activeOrder.slaDeadline).getTime() - Date.now();
+      if (remaining <= 0) { setSlaText('Overdue'); return; }
+      const mins = Math.floor(remaining / 60000);
+      const secs = Math.floor((remaining % 60000) / 1000);
+      setSlaText(`${mins}m ${secs}s`);
+    };
+    tick();
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [activeOrder]);
+
   const loadData = async () => {
     try {
       const { data } = await api.get('/customer/orders');
       const orders = data.data || [];
       setRecentOrders(orders.slice(0, 5));
+      const activeOrders = orders.filter((o: any) => !['delivered', 'cancelled'].includes(o.status));
       setStats({
         total: orders.length,
-        active: orders.filter((o: any) => !['delivered', 'cancelled'].includes(o.status)).length,
+        active: activeOrders.length,
         delivered: orders.filter((o: any) => o.status === 'delivered').length,
       });
+      if (activeOrders.length > 0) setActiveOrder(activeOrders[0]);
     } catch (e) { /* ignore */ }
+  };
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  };
+
+  const getSlaColor = () => {
+    if (!activeOrder?.slaDeadline) return 'text-gray-600';
+    const remaining = new Date(activeOrder.slaDeadline).getTime() - Date.now();
+    if (remaining <= 0) return 'text-red-600';
+    if (remaining < 5 * 60 * 1000) return 'text-red-500';
+    if (remaining < 10 * 60 * 1000) return 'text-yellow-600';
+    return 'text-green-600';
   };
 
   const statusColor = (status: string) => {
@@ -42,10 +77,37 @@ export default function CustomerDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Greeting */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Welcome back, {name}!</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{getGreeting()}, {name}! 👋</h1>
         <p className="text-gray-500 mt-1">Order food, water, and snacks delivered to your gate.</p>
       </div>
+
+      {/* Active Order SLA Banner */}
+      {activeOrder && activeOrder.slaDeadline && (new Date(activeOrder.slaDeadline).getTime() - Date.now()) > 0 && (
+        <Link href={`/customer/orders/${activeOrder._id}`} className="block bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl p-5 text-white hover:shadow-lg transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-purple-200 text-xs font-medium uppercase tracking-wide">Active Delivery</p>
+              <p className="text-lg font-bold mt-1">{activeOrder.orderNumber}</p>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-sm text-purple-100 capitalize">{activeOrder.status}</span>
+                <span className="text-purple-300">•</span>
+                <span className="text-sm text-purple-100">{activeOrder.deliveryLocation}</span>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="flex items-center gap-1 justify-end">
+                <MdTimer size={18} className="text-purple-200" />
+                <span className="text-xs text-purple-200">ETA</span>
+              </div>
+              <p className="text-2xl font-bold mt-1 text-white">
+                {slaText || '--:--'}
+              </p>
+            </div>
+          </div>
+        </Link>
+      )}
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

@@ -42,6 +42,14 @@ export default function CustomerTrackingPage() {
     return `${mins}m ${secs}s`;
   };
 
+  const getSlaColorClass = (deadline: string) => {
+    const remaining = new Date(deadline).getTime() - Date.now();
+    if (remaining <= 0) return 'text-red-600 bg-red-50 border-red-200';
+    if (remaining < 5 * 60 * 1000) return 'text-red-600 bg-red-50 border-red-200';
+    if (remaining < 10 * 60 * 1000) return 'text-yellow-700 bg-yellow-50 border-yellow-200';
+    return 'text-purple-700 bg-purple-50 border-purple-200';
+  };
+
   const statusColor = (status: string) => {
     const colors: Record<string, string> = {
       pending: 'bg-yellow-100 text-yellow-700',
@@ -112,10 +120,10 @@ export default function CustomerTrackingPage() {
 
                 {/* SLA Timer */}
                 {selectedOrder.slaDeadline && (
-                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
-                    <p className="text-xs text-purple-600 font-medium">Estimated Delivery</p>
-                    <p className="text-2xl font-bold text-purple-700 mt-1">{getSlaRemaining(selectedOrder.slaDeadline)}</p>
-                    <p className="text-xs text-purple-500 mt-1">SLA: 22 minutes</p>
+                  <div className={`border rounded-lg p-4 text-center ${getSlaColorClass(selectedOrder.slaDeadline)}`}>
+                    <p className="text-xs font-medium opacity-80">Estimated Delivery</p>
+                    <p className="text-2xl font-bold mt-1">{getSlaRemaining(selectedOrder.slaDeadline)}</p>
+                    <p className="text-xs mt-1 opacity-70">SLA: 22 minutes</p>
                   </div>
                 )}
 
@@ -138,7 +146,11 @@ export default function CustomerTrackingPage() {
                     const isComplete = idx <= stepIdx;
                     return (
                       <div key={step} className="flex items-center gap-3">
-                        <div className={`w-3 h-3 rounded-full ${isComplete ? 'bg-purple-600' : 'bg-gray-200'}`} />
+                        <div className={`w-3 h-3 rounded-full relative ${isComplete ? 'bg-purple-600' : 'bg-gray-200'}`}>
+                          {idx === stepIdx && isComplete && (
+                            <span className="absolute inset-0 rounded-full bg-purple-600 animate-ping opacity-75" />
+                          )}
+                        </div>
                         <span className={`text-sm capitalize ${isComplete ? 'text-gray-900 font-medium' : 'text-gray-400'}`}>
                           {step === 'enroute' ? 'En Route' : step}
                         </span>

@@ -180,10 +180,25 @@ export default function OrderDetailPage() {
               <p className="text-sm font-medium text-gray-900">${((item.sku?.price || 0) * item.quantity).toFixed(2)}</p>
             </div>
           ))}
+          {order.services?.map((svc: any, idx: number) => (
+            <div key={`svc-${idx}`} className="flex items-center justify-between py-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center text-sm">{svc.service?.icon || '🛎️'}</div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900">{svc.service?.name || 'Service'}</p>
+                  <p className="text-xs text-purple-600">Service • Qty: {svc.quantity}</p>
+                </div>
+              </div>
+              <p className="text-sm font-medium text-gray-900">${((svc.service?.price || 0) * svc.quantity).toFixed(2)}</p>
+            </div>
+          ))}
         </div>
         <div className="border-t border-gray-200 pt-3 mt-3 flex justify-between font-bold text-gray-900">
           <span>Total</span>
-          <span>${order.items?.reduce((sum: number, i: any) => sum + ((i.sku?.price || 0) * i.quantity), 0).toFixed(2)}</span>
+          <span>${(
+            (order.items?.reduce((sum: number, i: any) => sum + ((i.sku?.price || 0) * i.quantity), 0) || 0) +
+            (order.services?.reduce((sum: number, s: any) => sum + ((s.service?.price || 0) * s.quantity), 0) || 0)
+          ).toFixed(2)}</span>
         </div>
       </div>
 

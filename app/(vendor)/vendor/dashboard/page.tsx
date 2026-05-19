@@ -49,8 +49,10 @@ export default function VendorDashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Vendor Dashboard</h1>
-        <p className="text-sm text-gray-400 mt-0.5">Overview of your orders and catalog</p>
+        <h1 className="text-2xl font-bold text-gray-900">
+          {new Date().getHours() < 12 ? 'Good morning' : new Date().getHours() < 17 ? 'Good afternoon' : 'Good evening'} 👋
+        </h1>
+        <p className="text-sm text-gray-400 mt-0.5">Here&apos;s your vendor operations overview</p>
       </div>
 
       {/* Stats */}

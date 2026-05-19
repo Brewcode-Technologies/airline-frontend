@@ -40,6 +40,7 @@ export default function DriverOrdersPage() {
   const { list: orders, loading } = useAppSelector((s) => s.orders);
   const { list: drivers, loading: driversLoading } = useAppSelector((s) => s.drivers);
   const [myDriverId, setMyDriverId] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState('');
 
   useEffect(() => {
     dispatch(fetchOrders());
@@ -100,11 +101,34 @@ export default function DriverOrdersPage() {
 
   const activeOrders = myOrders.filter((o) => ['assigned', 'picked', 'enroute'].includes(o.status));
 
+  const filteredOrders = statusFilter
+    ? myOrders.filter((o) => o.status === statusFilter)
+    : myOrders;
+
   const isNew = (o: any) => Date.now() - new Date(o.createdAt).getTime() < 30 * 60 * 1000;
+
+  const statuses = ['', 'assigned', 'picked', 'enroute', 'delivered', 'cancelled'];
 
   return (
     <div>
       <PageHeader title="My Orders" subtitle={`${activeOrders.length} active · ${myOrders.length} total`} />
+
+      {/* Status Filter */}
+      <div className="flex flex-wrap gap-2 mb-5">
+        {statuses.map((s) => (
+          <button
+            key={s}
+            onClick={() => setStatusFilter(s)}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
+              statusFilter === s
+                ? 'bg-orange-500 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            {s || 'All'}
+          </button>
+        ))}
+      </div>
 
       {(loading || driversLoading) ? <Spinner label="Loading orders…" /> : (
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
@@ -117,7 +141,7 @@ export default function DriverOrdersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {myOrders.map((o) => (
+              {filteredOrders.map((o) => (
                 <tr key={o._id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 font-medium text-gray-800">
                     {o.orderNumber}
@@ -129,9 +153,11 @@ export default function DriverOrdersPage() {
                   <td className="px-4 py-3 text-gray-600">{o.vendor?.name || '—'}</td>
                   <td className="px-4 py-3"><Badge label={o.status} /></td>
                   <td className="px-4 py-3">
-                    {o.slaDeadline
-                      ? <span className="text-xs text-gray-600">{new Date(o.slaDeadline).toLocaleString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
-                      : <span className="text-gray-400 text-xs">—</span>}
+                    {o.slaDeadline && ['assigned', 'picked', 'enroute'].includes(o.status)
+                      ? <SlaCountdown deadline={o.slaDeadline} />
+                      : o.slaDeadline
+                        ? <span className="text-xs text-gray-500">{new Date(o.slaDeadline).toLocaleTimeString()}</span>
+                        : <span className="text-gray-400 text-xs">—</span>}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2 flex-wrap">

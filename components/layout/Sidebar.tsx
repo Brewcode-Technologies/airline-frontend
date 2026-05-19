@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { MdMenu, MdClose, MdDashboard, MdShoppingCart, MdPeople, MdBusiness, MdInventory, MdLocationOn, MdBarChart, MdManageAccounts, MdPerson, MdNavigation, MdCameraAlt, MdHistory, MdShoppingBag, MdStorefront, MdStar } from 'react-icons/md';
+import api from '@/services/api';
 
 const PORTALS = {
   admin: {
@@ -77,7 +78,23 @@ interface SidebarProps {
 export default function Sidebar({ portal }: SidebarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
   const { label, activeColor, links } = PORTALS[portal];
+
+  // Fetch cart count for customer portal
+  useEffect(() => {
+    if (portal !== 'customer') return;
+    const fetchCart = async () => {
+      try {
+        const { data } = await api.get('/customer/cart');
+        const cart = data.data;
+        setCartCount((cart?.items?.length || 0) + (cart?.services?.length || 0));
+      } catch (e) { /* ignore */ }
+    };
+    fetchCart();
+    const interval = setInterval(fetchCart, 5000);
+    return () => clearInterval(interval);
+  }, [portal]);
 
   const nav = (
     <aside className="w-64 h-full bg-gray-900 text-white flex flex-col">
@@ -93,17 +110,23 @@ export default function Sidebar({ portal }: SidebarProps) {
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {links.map(({ href, label: linkLabel, icon: Icon }) => {
           const active = pathname === href;
+          const isCartLink = portal === 'customer' && href === '/customer/cart';
           return (
             <Link
               key={href}
               href={href}
               onClick={() => setOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors relative ${
                 active ? `${activeColor} text-white` : 'text-gray-300 hover:bg-gray-800 hover:text-white'
               }`}
             >
               <Icon size={18} />
               {linkLabel}
+              {isCartLink && cartCount > 0 && (
+                <span className="absolute right-3 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
             </Link>
           );
         })}
