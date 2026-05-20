@@ -20,7 +20,7 @@ NEXT_PUBLIC_API_URL=http://localhost:5000/api
 | Command | Description |
 |---|---|
 | `npm run dev` | Development server — http://localhost:3000 |
-| `npm run build` | Production build |
+| `npm run build` | Production build  |
 | `npm start` | Serve production build |
 | `npm run lint` | Run ESLint |
 
