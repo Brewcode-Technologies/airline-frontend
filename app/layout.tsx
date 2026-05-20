@@ -3,8 +3,8 @@ import './globals.css';
 import ReduxProvider from '@/providers/ReduxProvider';
 
 export const metadata: Metadata = {
-  title: 'Airline Logistics',
-  description: 'Airline logistics management platform',
+  title: 'Airport Relief Logistics',
+  description: 'When Disruptions Hit, Relief Takes Off',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -6,13 +6,13 @@ import Spinner from '@/components/ui/Spinner';
 
 const ROLE_REDIRECT: Record<string, string> = {
   admin:   '/admin/dashboard',
-  airline: '/airline/dashboard',
+  airline: '/airline-staff/dashboard',
   driver:  '/driver/orders',
 };
 
 const ROLE_LOGIN: Record<string, string> = {
   admin:   '/admin-login',
-  airline: '/airline-login',
+  airline: '/airline-staff-login',
   driver:  '/driver-login',
 };
 

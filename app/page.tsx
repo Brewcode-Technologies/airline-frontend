@@ -10,9 +10,9 @@ const portals = [
     shadow: 'shadow-purple-200',
   },
   {
-    name: 'Airline',
+    name: 'Airline Staff',
     description: 'Create orders, track deliveries, and manage SLA',
-    href: '/airline-login',
+    href: '/airline-staff-login',
     icon: 'airline',
     gradient: 'from-blue-600 to-indigo-700',
     shadow: 'shadow-blue-200',
@@ -60,8 +60,8 @@ export default function Home() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 shadow-lg shadow-violet-200 mb-5">
             <MdFlight size={32} className="text-white" />
           </div>
-          <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">Airline Logistics</h1>
-          <p className="text-gray-500 mt-3 text-lg">Disruption-response delivery platform</p>
+          <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">Airport Relief Logistics</h1>
+          <p className="text-gray-500 mt-3 text-lg">When Disruptions Hit, Relief Takes Off</p>
           <p className="text-gray-400 mt-1 text-sm">Select a portal to get started</p>
         </div>
 
@@ -71,6 +71,8 @@ export default function Home() {
             <a
               key={p.name}
               href={p.href}
+              target="_blank"
+              rel="noopener noreferrer"
               className={`group relative bg-gradient-to-br ${p.gradient} rounded-2xl p-6 text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-xl ${p.shadow} overflow-hidden`}
             >
               {/* Background decoration */}

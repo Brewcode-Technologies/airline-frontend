@@ -37,7 +37,7 @@ function BillingContent() {
   if (!order) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
       <p className="text-gray-500 mb-4">Order not found</p>
-      <button onClick={() => router.push('/airline/create-orders')} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm cursor-pointer">Go Back</button>
+      <button onClick={() => router.push('/airline-staff/create-orders')} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm cursor-pointer">Go Back</button>
     </div>
   );
 
@@ -54,7 +54,7 @@ function BillingContent() {
     <div className="max-w-3xl mx-auto">
       {/* Actions bar - hidden on print */}
       <div className="flex items-center justify-between mb-6 print:hidden">
-        <button onClick={() => router.push('/airline/create-orders')}
+        <button onClick={() => router.push('/airline-staff/create-orders')}
           className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 cursor-pointer">
           <MdArrowBack size={18} /> Back to Orders
         </button>
@@ -73,7 +73,7 @@ function BillingContent() {
               <MdFlight size={24} className="text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white">Airline Logistics</h1>
+              <h1 className="text-xl font-bold text-white">Airport Relief Logistics</h1>
               <p className="text-blue-200 text-xs">Invoice / Billing</p>
             </div>
           </div>
@@ -183,7 +183,7 @@ function BillingContent() {
 
         {/* Footer */}
         <div className="px-8 py-4 border-t border-gray-100 text-center">
-          <p className="text-xs text-gray-400">Thank you for your order • Airline Logistics Management</p>
+          <p className="text-xs text-gray-400">Thank you for your order • Airport Relief Logistics</p>
         </div>
       </div>
     </div>

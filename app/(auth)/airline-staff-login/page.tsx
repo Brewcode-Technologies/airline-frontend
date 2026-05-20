@@ -10,7 +10,7 @@ import Link from 'next/link';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
-function AirlineLoginContent() {
+function AirlineStaffLoginContent() {
   const dispatch = useAppDispatch();
   const router   = useRouter();
   const { loading, error } = useAppSelector((s) => s.auth);
@@ -21,11 +21,10 @@ function AirlineLoginContent() {
   const [tab, setTab]             = useState<'email' | 'google'>('email');
   const [roleError, setRoleError] = useState('');
 
-  // Redirect if already logged in as airline
   useEffect(() => {
     const token = localStorage.getItem('token');
     const role  = localStorage.getItem('role');
-    if (token && role === 'airline') router.replace('/airline/dashboard');
+    if (token && role === 'airline') router.replace('/airline-staff/dashboard');
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,16 +33,7 @@ function AirlineLoginContent() {
     const result = await dispatch(login(form));
     if (login.fulfilled.match(result)) {
       if (result.payload.user.role !== 'airline') { setRoleError('Access denied. This portal is for airline staff only.'); return; }
-      router.push('/airline/dashboard');
-    }
-  };
-
-  const quickLogin = async (email: string, password: string, role: string) => {
-    setRoleError('');
-    const result = await dispatch(login({ email, password }));
-    if (login.fulfilled.match(result)) {
-      const redirectMap: Record<string, string> = { admin: '/admin/dashboard', airline: '/airline/dashboard', driver: '/driver/orders', vendor: '/vendor/dashboard' };
-      router.push(redirectMap[result.payload.user.role] || '/airline/dashboard');
+      router.push('/airline-staff/dashboard');
     }
   };
 
@@ -51,7 +41,8 @@ function AirlineLoginContent() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">✈ Airport Relief Logistics</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Airport Relief Logistics</h1>
+          <p className="text-sm text-gray-500 mt-1">When Disruptions Hit, Relief Takes Off</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
@@ -108,7 +99,7 @@ function AirlineLoginContent() {
                 </div>
 
                 <div className="flex items-center justify-end text-sm text-gray-500">
-                  <Link href="/airline-change-password" className="text-blue-600 hover:underline font-medium">Change password</Link>
+                  <Link href="/airline-staff-change-password" className="text-blue-600 hover:underline font-medium">Change password</Link>
                 </div>
               </form>
             ) : (
@@ -131,6 +122,6 @@ function AirlineLoginContent() {
   );
 }
 
-export default function AirlineLoginPage() {
-  return <Suspense><AirlineLoginContent /></Suspense>;
+export default function AirlineStaffLoginPage() {
+  return <Suspense><AirlineStaffLoginContent /></Suspense>;
 }

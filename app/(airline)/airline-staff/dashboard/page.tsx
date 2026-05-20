@@ -20,10 +20,10 @@ import Badge from '@/components/ui/Badge';
 const PIE_COLORS = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#f97316'];
 
 const quickLinks = [
-  { href: '/airline/create-orders',  label: 'Create Orders',  icon: MdShoppingCart, color: 'text-blue-600 bg-blue-50' },
-  { href: '/airline/tracking', label: 'Tracking', icon: MdLocationOn,   color: 'text-red-600 bg-red-50' },
-  { href: '/airline/history',  label: 'History',  icon: MdHistory,      color: 'text-green-600 bg-green-50' },
-  { href: '/airline/summary',  label: 'Summary',  icon: MdSummarize,    color: 'text-purple-600 bg-purple-50' },
+  { href: '/airline-staff/create-orders',  label: 'Create Orders',  icon: MdShoppingCart, color: 'text-blue-600 bg-blue-50' },
+  { href: '/airline-staff/tracking', label: 'Tracking', icon: MdLocationOn,   color: 'text-red-600 bg-red-50' },
+  { href: '/airline-staff/history',  label: 'History',  icon: MdHistory,      color: 'text-green-600 bg-green-50' },
+  { href: '/airline-staff/summary',  label: 'Summary',  icon: MdSummarize,    color: 'text-purple-600 bg-purple-50' },
 ];
 
 export default function AirlineDashboard() {
@@ -60,7 +60,7 @@ export default function AirlineDashboard() {
 
       {/* Stat Cards — clickable */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <button onClick={() => router.push('/airline/create-orders')}
+        <button onClick={() => router.push('/airline-staff/create-orders')}
           className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4 shadow-sm hover:shadow-md hover:border-blue-300 transition-all text-left">
           <div className="p-3 rounded-lg bg-blue-50 text-blue-600"><MdShoppingCart size={22} /></div>
           <div>
@@ -69,7 +69,7 @@ export default function AirlineDashboard() {
           </div>
         </button>
 
-        <button onClick={() => router.push('/airline/history')}
+        <button onClick={() => router.push('/airline-staff/history')}
           className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4 shadow-sm hover:shadow-md hover:border-green-300 transition-all text-left">
           <div className="p-3 rounded-lg bg-green-50 text-green-600"><MdCheckCircle size={22} /></div>
           <div>
@@ -78,7 +78,7 @@ export default function AirlineDashboard() {
           </div>
         </button>
 
-        <button onClick={() => router.push('/airline/create-orders')}
+        <button onClick={() => router.push('/airline-staff/create-orders')}
           className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4 shadow-sm hover:shadow-md hover:border-yellow-300 transition-all text-left">
           <div className="p-3 rounded-lg bg-yellow-50 text-yellow-600"><MdPending size={22} /></div>
           <div>
@@ -87,7 +87,7 @@ export default function AirlineDashboard() {
           </div>
         </button>
 
-        <button onClick={() => router.push('/airline/tracking')}
+        <button onClick={() => router.push('/airline-staff/tracking')}
           className="bg-white rounded-xl border border-gray-200 p-5 flex items-center gap-4 shadow-sm hover:shadow-md hover:border-purple-300 transition-all text-left">
           <div className="p-3 rounded-lg bg-purple-50 text-purple-600"><MdPeople size={22} /></div>
           <div>
@@ -117,7 +117,7 @@ export default function AirlineDashboard() {
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-gray-800">Orders by Status</h3>
-            <Link href="/airline/history" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+            <Link href="/airline-staff/history" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
               View all <MdArrowForward size={14} />
             </Link>
           </div>
@@ -211,7 +211,7 @@ export default function AirlineDashboard() {
         <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
             <h3 className="font-semibold text-gray-800">Recent Orders</h3>
-            <Link href="/airline/history" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+            <Link href="/airline-staff/history" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
               View all <MdArrowForward size={14} />
             </Link>
           </div>
@@ -225,7 +225,7 @@ export default function AirlineDashboard() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {recentOrders.map((o) => (
-                <tr key={o._id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push('/airline/create-orders')}>
+                <tr key={o._id} className="hover:bg-gray-50 cursor-pointer" onClick={() => router.push('/airline-staff/create-orders')}>
                   <td className="px-4 py-2.5 font-medium text-gray-800 text-xs">{o.orderNumber}</td>
                   <td className="px-4 py-2.5 text-gray-500 text-xs">{o.vendor?.name || '—'}</td>
                   <td className="px-4 py-2.5 text-gray-500 text-xs">{o.scheduledAt ? new Date(o.scheduledAt).toLocaleDateString() : '—'}</td>

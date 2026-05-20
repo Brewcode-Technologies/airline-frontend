@@ -23,16 +23,16 @@ const PORTALS = {
     ],
   },
   airline: {
-    label:       'Airline Portal',
+    label:       'Airline Staff Portal',
     activeColor: 'bg-blue-600',
     links: [
-      { href: '/airline/dashboard', label: 'Dashboard', icon: MdDashboard },
-      { href: '/airline/create-orders', label: 'Create Orders', icon: MdShoppingCart },
-      { href: '/airline/history',   label: 'History',   icon: MdHistory },
-      { href: '/airline/summary',   label: 'Summary',   icon: MdBarChart },
-      { href: '/airline/tracking',  label: 'Tracking',  icon: MdLocationOn },
-      { href: '/airline/punchout',  label: 'PunchOut',  icon: MdShoppingBag },
-      { href: '/airline/profile',   label: 'Profile',   icon: MdPerson },
+      { href: '/airline-staff/dashboard', label: 'Dashboard', icon: MdDashboard },
+      { href: '/airline-staff/create-orders', label: 'Create Orders', icon: MdShoppingCart },
+      { href: '/airline-staff/history',   label: 'History',   icon: MdHistory },
+      { href: '/airline-staff/summary',   label: 'Summary',   icon: MdBarChart },
+      { href: '/airline-staff/tracking',  label: 'Tracking',  icon: MdLocationOn },
+      { href: '/airline-staff/punchout',  label: 'PunchOut',  icon: MdShoppingBag },
+      { href: '/airline-staff/profile',   label: 'Profile',   icon: MdPerson },
     ],
   },
   driver: {
@@ -100,7 +100,8 @@ export default function Sidebar({ portal }: SidebarProps) {
     <aside className="w-64 h-full bg-gray-900 text-white flex flex-col">
       <div className="px-6 py-5 border-b border-gray-700 flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-bold text-white">Airline Logistics</h1>
+          <h1 className="text-lg font-bold text-white">Airport Relief Logistics</h1>
+          <p className="text-[10px] text-gray-500 mt-0.5">When Disruptions Hit, Relief Takes Off</p>
           <p className="text-xs text-gray-400 mt-0.5">{label}</p>
         </div>
         <button onClick={() => setOpen(false)} className="lg:hidden text-gray-400 hover:text-white cursor-pointer">

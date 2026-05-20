@@ -19,7 +19,7 @@ api.interceptors.response.use(
         const role = localStorage.getItem('role');
         localStorage.clear();
         const redirect =
-          role === 'airline' ? '/airline-login' :
+          role === 'airline' ? '/airline-staff-login' :
           role === 'driver'  ? '/driver-login'  :
           role === 'vendor'  ? '/vendor-login'  :
           role === 'customer' ? '/customer-login' :
